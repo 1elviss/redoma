@@ -436,6 +436,11 @@ public class Tela_Script extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jCheckBoxFillFactorActionPerformed
 
+    public void indicesVariantes() {
+
+    }
+
+
     private void jCheckBoxIndiceNaoUtilizadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxIndiceNaoUtilizadoActionPerformed
         // Cristiano: Índices não utilizados
         String idxNaoUtilizados = "SELECT  OBJECT_NAME(i.[object_id]) AS [Table Name] ,\n"
@@ -470,7 +475,7 @@ public class Tela_Script extends javax.swing.JFrame {
 
             while (rs.next()) {//enquanto houver próximo;
                 IndicesNaoUtilizados inn = new IndicesNaoUtilizados();
-                
+
                 inn.setNomeIndice("NomeIndice");
                 inn.setNomeTabela("NomeTabela");
 
@@ -523,6 +528,54 @@ public class Tela_Script extends javax.swing.JFrame {
             }
         });
     }
+
+    public void IndicesFillFactor() {
+        if (jCheckBoxFillFactor.isSelected()) {
+            int parametroFill = Integer.parseInt(jTextField3.getText());
+            String selectFill = "SELECT DB_NAME() AS DBNAME, a.name AS IndexName, \n"
+                    + " a.OrigFillFactor AS Fill_Factor, b.table_name\n"
+                    + "FROM sysindexes AS a\n"
+                    + "INNER JOIN information_schema.tables AS b \n"
+                    + " ON (OBJECT_ID(b.table_name) = a.id) \n"
+                    + " AND b.table_type = 'BASE TABLE'\n"
+                    + "WHERE a.OrigFillFactor < " + parametroFill + "\n"
+                    + "ORDER BY a.OrigFillFactor DESC";
+        }
+    }
+
+    public void indiceNaoUtilizado() {
+        if (jCheckBoxIndiceNaoUtilizado.isSelected()) {
+            // Cristiano: Índices não utilizados
+            String idxNaoUtilizados = "SELECT  OBJECT_NAME(i.[object_id]) AS [Table Name] ,\n"
+                    + "        i.name\n"
+                    + "FROM    sys.indexes AS i\n"
+                    + "        INNER JOIN sys.objects AS o ON i.[object_id] = o.[object_id]\n"
+                    + "WHERE   i.index_id NOT IN ( SELECT  s.index_id\n"
+                    + "                            FROM    sys.dm_db_index_usage_stats AS s\n"
+                    + "                            WHERE   s.[object_id] = i.[object_id]\n"
+                    + "                                    AND i.index_id = s.index_id\n"
+                    + "                                    AND database_id = DB_ID() )\n"
+                    + "        AND o.[type] = 'U'\n"
+                    + "ORDER BY OBJECT_NAME(i.[object_id]) ASC ;";
+        }
+    }
+
+    private void FileGroupPrimary(java.awt.event.ActionEvent evt) {
+        if (checkFileGroupPrimary.isSelected()) {
+            String selectFG = " Select    OBJECT_NAME(i.object_id) As Tabela,\n"
+                    + "i.name As Indice, \n"
+                    + "i.object_id IddoObjetoIndice,\n"
+                    + "fg.name as GrupoDeARQUIVO,\n"
+                    + "i.type_desc as TipoDeIndice,\n"
+                    + "o.type as TipoTabela\n"
+                    + "from sys.indexes as i \n"
+                    + "inner join sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
+                    + "inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id\n"
+                    + "inner join sys.objects as o on o.object_id = i.object_id\n"
+                    + "where (o.type ='U') and (fg.filegroup_guid IS NULL) and (OBJECT_NAME(i.object_id) <> 'sysdiagrams')";
+        }
+    }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox checkFileGroupPrimary;
