@@ -9,11 +9,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import view.Tela_Data_Base;
+import model.bean.IndicesClustered;
 
 /**
  *
@@ -357,6 +362,64 @@ public class Tela_Script extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_checkFileGroupPrimaryActionPerformed
 
+      private void jCheckBoxIndexClusterTipoVariavelActionPerformed(java.awt.event.ActionEvent evt) {                                                                  
+        // listar todos os indeces custered com tipo de dados variantes
+
+            String idxCustered = "SELECT distinct\n"
+                    + "clmns.column_id AS [ID],\n"
+                    + "clmns.name AS [Name],\n"
+                    + "ISNULL(baset.name, N'') AS [SystemType],\n"
+                    + "ik.type_desc\n"
+                    + "FROM\n"
+                    + "sys.tables AS tbl\n"
+                    + "INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
+                    + "LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1)) \n"
+                    + "LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
+                    + "LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
+                    + "WHERE tbl.name='TB_NOSSO_TESTE'\n"
+                    + " and ik.type = 1\n"
+                    + " and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
+                    + "ORDER BY\n"
+                    + "[ID] ASC";
+
+            //abrir conexao;
+            Connection minhaConexao = new Tela_Resumo().getTelaScript().conection;
+            PreparedStatement stmt = null;
+            ResultSet rs = null;
+
+            List<IndicesClustered> listaResultSet = new ArrayList<>();
+
+            try {
+                //É preciso percorrer o PreparedStatement
+                /*toda a consulta ta denro do do stmt que e a declaracao ja prepada
+            (Prepared Stamtement)*/
+                //Preparou tudo mas e preciso executar
+                stmt = minhaConexao.prepareStatement(idxCustered);
+                //retorna um resultset o executeQuery()
+                //valores retornados estao em rs
+                rs = stmt.executeQuery();//query porque e consulta 
+                //para percorrer o resultSet
+
+                while (rs.next()) {//enquanto houver próximo;
+                    IndicesClustered inc = new IndicesClustered();
+
+                    inc.setNomeTabela("nomeTabela");
+                    inc.setTipoDedadoVariante("tipoDedadoVariante");
+                    inc.setIndecesCustered("indecesCustered");
+
+                    listaResultSet.add(inc);
+                }
+
+            } catch (SQLException ex) {
+                System.err.println("Erro :" + ex);
+            } finally {
+                try {
+                    minhaConexao.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(Tela_Resumo.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }      
+    } 
     /**
      * @param args the command line arguments
      */
@@ -391,6 +454,26 @@ public class Tela_Script extends javax.swing.JFrame {
                 new Tela_Script(conection).setVisible(true);
             }
         });
+        
+         public void indicesVariantes(){
+       
+            String idxCustered = "SELECT distinct\n"
+                    + "clmns.column_id AS [ID],\n"
+                    + "clmns.name AS [Name],\n"
+                    + "ISNULL(baset.name, N'') AS [SystemType],\n"
+                    + "ik.type_desc\n"
+                    + "FROM\n"
+                    + "sys.tables AS tbl\n"
+                    + "INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
+                    + "LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1)) \n"
+                    + "LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
+                    + "LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
+                    + "WHERE tbl.name='TB_NOSSO_TESTE'\n"
+                    + " and ik.type = 1\n"
+                    + " and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
+                    + "ORDER BY\n"
+                    + "[ID] ASC";
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
