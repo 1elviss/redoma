@@ -39,6 +39,8 @@ public class BasesDinamicas extends JFrame {
     private javax.swing.JLabel jLbdsistemico = new javax.swing.JLabel();
     private javax.swing.JLabel jLbdUsuario = new javax.swing.JLabel();
     private javax.swing.JPanel jPanelFuncao = new javax.swing.JPanel();
+    private javax.swing.JPanel jPanel2 = new javax.swing.JPanel();
+    private javax.swing.JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
 
     /**
      * Launch the application.
@@ -77,6 +79,11 @@ public class BasesDinamicas extends JFrame {
         jPanelFuncao.add(jBtCancelar);
         jPanelFuncao.add(jBtAjuda);
 
+        
+        // adicionar lista de checkbox em JPnael2 e ta ok
+        jPanel2.add(jBtAvancar);
+        jScrollPane1.setViewportView(jPanel2);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(contentPane);
         contentPane.setLayout(jPanel1Layout);
 
@@ -91,6 +98,7 @@ public class BasesDinamicas extends JFrame {
                                         .addGroup(jPanel1Layout.createSequentialGroup()
                                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                         .addComponent(jLbdsistemico)
+                                                        .addComponent(jScrollPane1,javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
                                                         .addComponent(jLbdUsuario))
                                                 .addContainerGap(334, Short.MAX_VALUE))
                                         .addGroup(jPanel1Layout.createSequentialGroup()
@@ -104,47 +112,14 @@ public class BasesDinamicas extends JFrame {
                         .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addComponent(jLbdsistemico)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jLbdsistemico)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jLbdsistemico)
-                                .addGap(18, 18, 18)
+                                .addComponent(jScrollPane1,javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                                .addGap(10, 10, 180)
                                 .addComponent(jLbdUsuario)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jLbdsistemico)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLbdsistemico)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jLbdsistemico)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jLbdsistemico)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 115, Short.MAX_VALUE)
                                 .addComponent(jPanelFuncao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, Short.MAX_VALUE))
+                                .addGap(10, 10, Short.MAX_VALUE))
         );
-//      
-//        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-//        getContentPane().setLayout(layout);
-//        layout.setHorizontalGroup(
-//                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//                        .addGroup(layout.createSequentialGroup()
-//                                .addContainerGap()
-//                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//                                        .addComponent(contentPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-//                                        .addComponent(jPanelFuncao, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-//                                .addContainerGap())
-//        );
-//        layout.setVerticalGroup(
-//                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//                        .addGroup(layout.createSequentialGroup()
-//                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-//                                .addComponent(contentPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-//                                .addGap(18, 18, 18)
-//                                .addComponent(jPanelFuncao, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
-//                                .addGap(39, 39, 39))
-//        );
-//        pack();
-//        setLocationRelativeTo(null);
 
         setContentPane(contentPane);
         ListarCheckbox(getDb(con));
