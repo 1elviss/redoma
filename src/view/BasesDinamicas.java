@@ -10,29 +10,28 @@ package view;
  * @author Valmir Andrade
  */
 
-import java.awt.BorderLayout;
+import java.awt.Checkbox;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.border.EmptyBorder;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
 import util.Bases;
 
 public class BasesDinamicas extends JFrame {
    //variavel que armazena consulta as bases de dados existentes no banco
     private final String consulta="Select name,database_id From sys.databases;";
-    private JPanel contentPane;
+    private JScrollPane contentPane;
     private List<JCheckBox> checkboxes = new ArrayList<>();
     /**
      * Launch the application.
-     * @param args
      */
     
      public BasesDinamicas() {
@@ -40,23 +39,30 @@ public class BasesDinamicas extends JFrame {
      }
     /**
      * Create the frame.
-     * @param con
+     * @param con 
      */
     //monta uma tela para inclusão dos checkboxes
     public BasesDinamicas(Connection con) {
-       setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 450, 300);
-        contentPane = new JPanel();
-      
+        contentPane = new JScrollPane();
         setContentPane(contentPane);
-        ListarCheckbox(getDb(con));
-        for (int i = 0; i< this.checkboxes.size();i++) {
-              JCheckBox checkBox =this.checkboxes.get(i);
-              checkBox.setBounds(10,20,10,10);
-              contentPane.add(checkBox);
-        }
-                setVisible(true);
+        setVisible(true);
     }
+    
+    public JList<Checkbox> getBases(Connection con) {
+       JList<Checkbox> lista =  new JList<>();
+       JList<Checkbox> listabases = new JList<>();
+       ListarCheckbox(getDb(con));
+       for (int i = 0; i< this.checkboxes.size();i++) {
+              JCheckBox checkBox =this.checkboxes.get(i);
+              checkBox.setBounds(10,20*i,300,20);
+              listabases.add(checkBox);
+              checkBox.setVisible(true);
+        }
+        return  lista ;    
+    }
+    
     
     //transforma a lista de bases em uma lista de checkbox
     private void ListarCheckbox(List<Bases> bases) {

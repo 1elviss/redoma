@@ -9,8 +9,8 @@ package util;
  *
  * @author ASUS
  */
-public class Bases {
-    private String nome;
+  public  class Bases {
+    private  String nome;
    private int id;
 
     public String getNome() {
