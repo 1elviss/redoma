@@ -36,6 +36,9 @@ public class BasesDinamicas extends JFrame {
     private javax.swing.JButton jBtAvancar = new javax.swing.JButton();
     private javax.swing.JButton jBtCancelar = new javax.swing.JButton();
     private javax.swing.JScrollBar jScrollBar1 = new javax.swing.JScrollBar();
+    private javax.swing.JLabel jLbdsistemico = new javax.swing.JLabel();
+    private javax.swing.JLabel jLbdUsuario = new javax.swing.JLabel();
+    private javax.swing.JPanel jPanelFuncao = new javax.swing.JPanel();
 
     /**
      * Launch the application.
@@ -54,18 +57,103 @@ public class BasesDinamicas extends JFrame {
     //monta uma tela para inclusão dos checkboxes
     public BasesDinamicas(Connection con) {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 450, 300);
+        setBounds(100, 100, 450, 400);
         setTitle("DataBase");
         contentPane = new JPanel();
-        contentPane.setBorder(javax.swing.BorderFactory.createTitledBorder("Selecione o(s) DataBase(s)"));        
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        contentPane.setBorder(javax.swing.BorderFactory.createTitledBorder("Selecione o(s) DataBase(s)"));
+        jScrollBar1.setOrientation(javax.swing.JScrollBar.HORIZONTAL);
+        jScrollBar1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        jBtAvancar.setText("Avançar >>");
+        jBtAvancar.setPreferredSize(new java.awt.Dimension(100, 30));
+        jBtCancelar.setText("Cancelar");
+        jBtCancelar.setPreferredSize(new java.awt.Dimension(100, 30));
+        jBtAjuda.setText("Ajuda");
+        jBtAjuda.setPreferredSize(new java.awt.Dimension(100, 30));
+        jPanelFuncao.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        jPanelFuncao.add(jBtAvancar);
+        jPanelFuncao.add(jBtCancelar);
+        jPanelFuncao.add(jBtAjuda);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(contentPane);
+        contentPane.setLayout(jPanel1Layout);
+
+        jLbdUsuario.setText("Banco de Dados de Usuários");
+        jLbdsistemico.setText("Banco de Dados Sistêmico");
+
+        jPanel1Layout.setHorizontalGroup(
+                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addComponent(jLbdsistemico)
+                                                        .addComponent(jLbdUsuario))
+                                                .addContainerGap(334, Short.MAX_VALUE))
+                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addComponent(jLbdsistemico)
+                                                .addGap(0, 0, Short.MAX_VALUE))
+                                        .addComponent(jPanelFuncao, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addGap(18, 18, Short.MAX_VALUE)))
+        );
+        jPanel1Layout.setVerticalGroup(
+                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jLbdsistemico)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLbdsistemico)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLbdsistemico)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLbdUsuario)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLbdsistemico)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLbdsistemico)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLbdsistemico)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLbdsistemico)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 115, Short.MAX_VALUE)
+                                .addComponent(jPanelFuncao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, Short.MAX_VALUE))
+        );
+//      
+//        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+//        getContentPane().setLayout(layout);
+//        layout.setHorizontalGroup(
+//                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+//                        .addGroup(layout.createSequentialGroup()
+//                                .addContainerGap()
+//                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+//                                        .addComponent(contentPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+//                                        .addComponent(jPanelFuncao, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+//                                .addContainerGap())
+//        );
+//        layout.setVerticalGroup(
+//                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+//                        .addGroup(layout.createSequentialGroup()
+//                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+//                                .addComponent(contentPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+//                                .addGap(18, 18, 18)
+//                                .addComponent(jPanelFuncao, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
+//                                .addGap(39, 39, 39))
+//        );
+//        pack();
+//        setLocationRelativeTo(null);
+
         setContentPane(contentPane);
         ListarCheckbox(getDb(con));
-        for (int i = 0; i < this.checkboxes.size(); i++) {
-            JCheckBox checkBox = this.checkboxes.get(i);
-            checkBox.setBounds(10, 20, 10, 10);
-            contentPane.add(checkBox);
-        }
-        setVisible(true);
+//        for (int i = 0; i < this.checkboxes.size(); i++) {
+//            JCheckBox checkBox = this.checkboxes.get(i);
+//            checkBox.setBounds(10, 20, 10, 10);
+//            contentPane.add(checkBox);
+//        }
+
     }
 
     //transforma a lista de bases em uma lista de checkbox
