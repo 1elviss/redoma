@@ -9,11 +9,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import view.Tela_Data_Base;
+import model.bean.IndicesFillFactor;
+import model.bean.IndicesNaoUtilizados;
+import model.bean.IndicesNoPrimary;
+import model.bean.IndicesClustered
+import sun.java2d.pipe.LoopPipe;
 
 /**
  *
@@ -22,6 +30,7 @@ import view.Tela_Data_Base;
 public class Tela_Script extends javax.swing.JFrame {
 
     public static Connection conection;
+
     /**
      * Creates new form Tela_Data_Base
      */
@@ -56,9 +65,6 @@ public class Tela_Script extends javax.swing.JFrame {
     public void setTelaResumo(Tela_Resumo telaResumo) {
         this.telaResumo = telaResumo;
     }
-    
-    
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -120,8 +126,18 @@ public class Tela_Script extends javax.swing.JFrame {
         jScrollBar1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jCheckBoxFillFactor.setText("Índices com Fillfactor menor ");
+        jCheckBoxFillFactor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxFillFactorActionPerformed(evt);
+            }
+        });
 
         jCheckBoxIndiceNaoUtilizado.setText("Índices não utilizados");
+        jCheckBoxIndiceNaoUtilizado.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxIndiceNaoUtilizadoActionPerformed(evt);
+            }
+        });
 
         jCheckBoxMaiorIndice.setText("Os top 10 - maiores indices");
 
@@ -140,6 +156,11 @@ public class Tela_Script extends javax.swing.JFrame {
         });
 
         jCheckBoxIndexClusterTipoVariavel.setText("Ííndices clusterizados com tipos de dados variantes");
+        jCheckBoxIndexClusterTipoVariavel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxIndexClusterTipoVariavelActionPerformed(evt);
+            }
+        });
 
         jSlider1.setMajorTickSpacing(10);
         jSlider1.setPaintLabels(true);
@@ -201,15 +222,14 @@ public class Tela_Script extends javax.swing.JFrame {
                             .addComponent(jCheckBoxIndiceNaoUtilizado)
                             .addComponent(jCheckBoxABC)
                             .addComponent(jLabelOpcaoIndex)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(checkFileGroupPrimary, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jCheckBoxIndexClusterTipoVariavel, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                    .addComponent(jCheckBoxFragCluster)
-                                    .addGap(6, 6, 6)
-                                    .addComponent(jSlider2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(checkFileGroupPrimary)
+                            .addComponent(jCheckBoxIndexClusterTipoVariavel)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jCheckBoxFragCluster)
+                                .addGap(6, 6, 6)
+                                .addComponent(jSlider2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(0, 0, Short.MAX_VALUE))))
         );
         jPanel1Layout.setVerticalGroup(
@@ -320,26 +340,26 @@ public class Tela_Script extends javax.swing.JFrame {
         this.dispose();
     }
     private void jBtAvançarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtAvançarActionPerformed
-     //   try {
-             //this.conection.close();
-            //existe algo dentro do objeto telaResumo que esta dentro de telaScript
-            if (getTelaResumo() == null) {//nao foi ainda para outra tela
-                //cria nova instancia
-                //passando esta tela como parametro
-                setTelaResumo(new Tela_Resumo());
-                //a tela script agora conhece esta tela caso ela precise voltar
-                //guardando o caminho de volta
-                getTelaResumo().setTelaScript(this);
-                getTelaResumo().setVisible(true);
-                this.dispose();
-            } else {
-                //ja passou pela 3 tela e voltou pra essa
-                this.getTelaResumo().setVisible(true);
-                this.dispose();
-            }
-     //   } catch (SQLException ex) {
-     //       Logger.getLogger(Tela_Script.class.getName()).log(Level.SEVERE, null, ex);
-     //   }
+        //   try {
+        //this.conection.close();
+        //existe algo dentro do objeto telaResumo que esta dentro de telaScript
+        if (getTelaResumo() == null) {//nao foi ainda para outra tela
+            //cria nova instancia
+            //passando esta tela como parametro
+            setTelaResumo(new Tela_Resumo());
+            //a tela script agora conhece esta tela caso ela precise voltar
+            //guardando o caminho de volta
+            getTelaResumo().setTelaScript(this);
+            getTelaResumo().setVisible(true);
+            this.dispose();
+        } else {
+            //ja passou pela 3 tela e voltou pra essa
+            this.getTelaResumo().setVisible(true);
+            this.dispose();
+        }
+        //   } catch (SQLException ex) {
+        //       Logger.getLogger(Tela_Script.class.getName()).log(Level.SEVERE, null, ex);
+        //   }
     }//GEN-LAST:event_jBtAvançarActionPerformed
 
     private void jBtCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtCancelarActionPerformed
@@ -354,8 +374,186 @@ public class Tela_Script extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void checkFileGroupPrimaryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkFileGroupPrimaryActionPerformed
-        // TODO add your handling code here:
+        if (checkFileGroupPrimary.isSelected()) {
+            String selectFG = " Select    OBJECT_NAME(i.object_id) As Tabela,\n"
+                    + "i.name As Indice, \n"
+                    + "i.object_id IddoObjetoIndice,\n"
+                    + "fg.name as GrupoDeARQUIVO,\n"
+                    + "i.type_desc as TipoDeIndice,\n"
+                    + "o.type as TipoTabela\n"
+                    + "from sys.indexes as i \n"
+                    + "inner join sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
+                    + "inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id\n"
+                    + "inner join sys.objects as o on o.object_id = i.object_id\n"
+                    + "where (o.type ='U') and (fg.filegroup_guid IS NULL) and (OBJECT_NAME(i.object_id) <> 'sysdiagrams')";
+        }
     }//GEN-LAST:event_checkFileGroupPrimaryActionPerformed
+
+    private void jCheckBoxFillFactorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxFillFactorActionPerformed
+        // Listar todos os índices com Fillfactor menor que X - parâmetro int;
+        if (jCheckBoxFillFactor.isSelected()) {
+            int parametroFill = Integer.parseInt(jTextField3.getText());
+            String selectFill = "SELECT DB_NAME() AS DBNAME, a.name AS IndexName, \n"
+                    + " a.OrigFillFactor AS Fill_Factor, b.table_name\n"
+                    + "FROM sysindexes AS a\n"
+                    + "INNER JOIN information_schema.tables AS b \n"
+                    + " ON (OBJECT_ID(b.table_name) = a.id) \n"
+                    + " AND b.table_type = 'BASE TABLE'\n"
+                    + "WHERE a.OrigFillFactor < " + parametroFill + "\n"
+                    + "ORDER BY a.OrigFillFactor DESC";
+
+            //abrir conexao;
+            Connection minhaConexao = new Tela_Resumo().getTelaScript().conection;
+            PreparedStatement stmt = null;
+            ResultSet rs = null;
+
+            List<IndicesFillFactor> listaResultSet = new ArrayList<>();
+
+            try {
+                //É preciso percorrer o PreparedStatement
+                /*toda a consulta ta denro do do stmt que e a declaracao ja prepada
+            (Prepared Stamtement)*/
+                //Preparou tudo mas e preciso executar
+                stmt = minhaConexao.prepareStatement(selectFill);
+                //retorna um resultset o executeQuery()
+                //valores retornados estao em rs
+                rs = stmt.executeQuery();//query porque e consulta 
+                //para percorrer o resultSet
+
+                while (rs.next()) {//enquanto houver próximo;
+                    IndicesFillFactor iff = new IndicesFillFactor();
+
+                    iff.setNomeDoBanco(rs.getString("NomeIndice"));
+                    iff.setNomeIndice(rs.getString("NomeIndice"));
+                    iff.setFillFactor(rs.getInt("fillFactor"));
+                    iff.setNomeTabela(rs.getString("NomeTabela"));
+
+                    listaResultSet.add(iff);
+                }
+
+            } catch (SQLException ex) {
+                System.err.println("Erro :" + ex);
+            } finally {
+                try {
+                    minhaConexao.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(Tela_Resumo.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }//GEN-LAST:event_jCheckBoxFillFactorActionPerformed
+
+
+    private void jCheckBoxIndiceNaoUtilizadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxIndiceNaoUtilizadoActionPerformed
+        // Cristiano: Índices não utilizados
+        String idxNaoUtilizados = "SELECT  OBJECT_NAME(i.[object_id]) AS [Table Name] ,\n"
+                + "        i.name\n"
+                + "FROM    sys.indexes AS i\n"
+                + "        INNER JOIN sys.objects AS o ON i.[object_id] = o.[object_id]\n"
+                + "WHERE   i.index_id NOT IN ( SELECT  s.index_id\n"
+                + "                            FROM    sys.dm_db_index_usage_stats AS s\n"
+                + "                            WHERE   s.[object_id] = i.[object_id]\n"
+                + "                                    AND i.index_id = s.index_id\n"
+                + "                                    AND database_id = DB_ID() )\n"
+                + "        AND o.[type] = 'U'\n"
+                + "ORDER BY OBJECT_NAME(i.[object_id]) ASC ;";
+
+        //abrir conexao;
+        Connection minhaConexao = new Tela_Resumo().getTelaScript().conection;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        List<IndicesNaoUtilizados> listaResultSet = new ArrayList<>();
+
+        try {
+            //É preciso percorrer o PreparedStatement
+            /*toda a consulta ta denro do do stmt que e a declaracao ja prepada
+            (Prepared Stamtement)*/
+            //Preparou tudo mas e preciso executar
+            stmt = minhaConexao.prepareStatement(idxNaoUtilizados);
+            //retorna um resultset o executeQuery()
+            //valores retornados estao em rs
+            rs = stmt.executeQuery();//query porque e consulta 
+            //para percorrer o resultSet
+
+            while (rs.next()) {//enquanto houver próximo;
+                IndicesNaoUtilizados inn = new IndicesNaoUtilizados();
+
+                inn.setNomeIndice("NomeIndice");
+                inn.setNomeTabela("NomeTabela");
+
+                listaResultSet.add(inn);
+            }
+
+        } catch (SQLException ex) {
+            System.err.println("Erro :" + ex);
+        } finally {
+            try {
+                minhaConexao.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(Tela_Resumo.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_jCheckBoxIndiceNaoUtilizadoActionPerformed
+
+    private void jCheckBoxIndexClusterTipoVariavelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxIndexClusterTipoVariavelActionPerformed
+        // listar todos os indeces custered com tipo de dados variantes
+
+            String idxCustered = "SELECT distinct\n"
+                    + "clmns.column_id AS [ID],\n"
+                    + "clmns.name AS [Name],\n"
+                    + "ISNULL(baset.name, N'') AS [SystemType],\n"
+                    + "ik.type_desc\n"
+                    + "FROM\n"
+                    + "sys.tables AS tbl\n"
+                    + "INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
+                    + "LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1)) \n"
+                    + "LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
+                    + "LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
+                    + "WHERE tbl.name='TB_NOSSO_TESTE'\n"
+                    + " and ik.type = 1\n"
+                    + " and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
+                    + "ORDER BY\n"
+                    + "[ID] ASC";
+
+            //abrir conexao;
+            Connection minhaConexao = new Tela_Resumo().getTelaScript().conection;
+            PreparedStatement stmt = null;
+            ResultSet rs = null;
+
+            List<IndicesClustered> listaResultSet = new ArrayList<>();
+
+            try {
+                //É preciso percorrer o PreparedStatement
+                /*toda a consulta ta denro do do stmt que e a declaracao ja prepada
+            (Prepared Stamtement)*/
+                //Preparou tudo mas e preciso executar
+                stmt = minhaConexao.prepareStatement(idxCustered);
+                //retorna um resultset o executeQuery()
+                //valores retornados estao em rs
+                rs = stmt.executeQuery();//query porque e consulta 
+                //para percorrer o resultSet
+
+                while (rs.next()) {//enquanto houver próximo;
+                    IndicesClustered inc = new IndicesClustered();
+
+                    inc.setNomeTabela("nomeTabela");
+                    inc.setTipoDedadoVariante("tipoDedadoVariante");
+                    inc.setIndecesCustered("indecesCustered");
+
+                    listaResultSet.add(inc);
+                }
+
+            } catch (SQLException ex) {
+                System.err.println("Erro :" + ex);
+            } finally {
+                try {
+                    minhaConexao.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(Tela_Resumo.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }      
+    }//GEN-LAST:event_jCheckBoxIndexClusterTipoVariavelActionPerformed
 
     /**
      * @param args the command line arguments
@@ -384,6 +582,8 @@ public class Tela_Script extends javax.swing.JFrame {
         }
         //</editor-fold>
         //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -392,6 +592,76 @@ public class Tela_Script extends javax.swing.JFrame {
             }
         });
     }
+
+    public void IndicesFillFactor() {
+        if (jCheckBoxFillFactor.isSelected()) {
+            int parametroFill = Integer.parseInt(jTextField3.getText());
+            String selectFill = "SELECT DB_NAME() AS DBNAME, a.name AS IndexName, \n"
+                    + " a.OrigFillFactor AS Fill_Factor, b.table_name\n"
+                    + "FROM sysindexes AS a\n"
+                    + "INNER JOIN information_schema.tables AS b \n"
+                    + " ON (OBJECT_ID(b.table_name) = a.id) \n"
+                    + " AND b.table_type = 'BASE TABLE'\n"
+                    + "WHERE a.OrigFillFactor < " + parametroFill + "\n"
+                    + "ORDER BY a.OrigFillFactor DESC";
+        }
+    }
+
+    public void indiceNaoUtilizado() {
+        if (jCheckBoxIndiceNaoUtilizado.isSelected()) {
+            // Cristiano: Índices não utilizados
+            String idxNaoUtilizados = "SELECT  OBJECT_NAME(i.[object_id]) AS [Table Name] ,\n"
+                    + "        i.name\n"
+                    + "FROM    sys.indexes AS i\n"
+                    + "        INNER JOIN sys.objects AS o ON i.[object_id] = o.[object_id]\n"
+                    + "WHERE   i.index_id NOT IN ( SELECT  s.index_id\n"
+                    + "                            FROM    sys.dm_db_index_usage_stats AS s\n"
+                    + "                            WHERE   s.[object_id] = i.[object_id]\n"
+                    + "                                    AND i.index_id = s.index_id\n"
+                    + "                                    AND database_id = DB_ID() )\n"
+                    + "        AND o.[type] = 'U'\n"
+                    + "ORDER BY OBJECT_NAME(i.[object_id]) ASC ;";
+        }
+    }
+
+    private void FileGroupPrimary(java.awt.event.ActionEvent evt) {
+        if (checkFileGroupPrimary.isSelected()) {
+            String selectFG = " Select    OBJECT_NAME(i.object_id) As Tabela,\n"
+                    + "i.name As Indice, \n"
+                    + "i.object_id IddoObjetoIndice,\n"
+                    + "fg.name as GrupoDeARQUIVO,\n"
+                    + "i.type_desc as TipoDeIndice,\n"
+                    + "o.type as TipoTabela\n"
+                    + "from sys.indexes as i \n"
+                    + "inner join sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
+                    + "inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id\n"
+                    + "inner join sys.objects as o on o.object_id = i.object_id\n"
+                    + "where (o.type ='U') and (fg.filegroup_guid IS NULL) and (OBJECT_NAME(i.object_id) <> 'sysdiagrams')";
+        }
+        
+        
+
+    public void indicesVariantes(){
+       
+            String idxCustered = "SELECT distinct\n"
+                    + "clmns.column_id AS [ID],\n"
+                    + "clmns.name AS [Name],\n"
+                    + "ISNULL(baset.name, N'') AS [SystemType],\n"
+                    + "ik.type_desc\n"
+                    + "FROM\n"
+                    + "sys.tables AS tbl\n"
+                    + "INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
+                    + "LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1)) \n"
+                    + "LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
+                    + "LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
+                    + "WHERE tbl.name='TB_NOSSO_TESTE'\n"
+                    + " and ik.type = 1\n"
+                    + " and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
+                    + "ORDER BY\n"
+                    + "[ID] ASC";
+        }
+}
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox checkFileGroupPrimary;
