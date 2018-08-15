@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 import model.bean.IndicesFillFactor;
 import model.bean.IndicesNaoUtilizados;
 import model.bean.IndicesNoPrimary;
+import sun.java2d.pipe.LoopPipe;
 
 /**
  *
@@ -155,6 +156,11 @@ public class Tela_Script extends javax.swing.JFrame {
         });
 
         jCheckBoxIndexClusterTipoVariavel.setText("Ííndices clusterizados com tipos de dados variantes");
+        jCheckBoxIndexClusterTipoVariavel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxIndexClusterTipoVariavelActionPerformed(evt);
+            }
+        });
 
         jSlider1.setMajorTickSpacing(10);
         jSlider1.setPaintLabels(true);
@@ -386,7 +392,7 @@ public class Tela_Script extends javax.swing.JFrame {
     private void jCheckBoxFillFactorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxFillFactorActionPerformed
         // Listar todos os índices com Fillfactor menor que X - parâmetro int;
         if (jCheckBoxFillFactor.isSelected()) {
-            int parametroFill = jSlider3.getValue();
+            int parametroFill = Integer.parseInt(jTextField3.getText());
             String selectFill = "SELECT DB_NAME() AS DBNAME, a.name AS IndexName, \n"
                     + " a.OrigFillFactor AS Fill_Factor, b.table_name\n"
                     + "FROM sysindexes AS a\n"
@@ -395,7 +401,7 @@ public class Tela_Script extends javax.swing.JFrame {
                     + " AND b.table_type = 'BASE TABLE'\n"
                     + "WHERE a.OrigFillFactor < " + parametroFill + "\n"
                     + "ORDER BY a.OrigFillFactor DESC";
-
+            
             //abrir conexao;
             Connection minhaConexao = new Tela_Resumo().getTelaScript().conection;
             PreparedStatement stmt = null;
@@ -417,9 +423,10 @@ public class Tela_Script extends javax.swing.JFrame {
                 while (rs.next()) {//enquanto houver próximo;
                     IndicesFillFactor iff = new IndicesFillFactor();
 
-                    iff.setNomeDoBanco("NomeDoBanco");
-                    iff.setNomeIndice("NomeIndice");
-                    iff.setNomeTabela("NomeTabela");
+                    iff.setNomeDoBanco(rs.getString("NomeIndice"));
+                    iff.setNomeIndice(rs.getString("NomeIndice"));
+                    iff.setFillFactor(rs.getInt("fillFactor"));
+                    iff.setNomeTabela(rs.getString("NomeTabela"));
 
                     listaResultSet.add(iff);
                 }
@@ -492,6 +499,10 @@ public class Tela_Script extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_jCheckBoxIndiceNaoUtilizadoActionPerformed
+
+    private void jCheckBoxIndexClusterTipoVariavelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxIndexClusterTipoVariavelActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCheckBoxIndexClusterTipoVariavelActionPerformed
 
     /**
      * @param args the command line arguments

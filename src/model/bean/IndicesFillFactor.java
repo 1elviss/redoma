@@ -46,6 +46,15 @@ public class IndicesFillFactor {
     public void setNomeTabela(String nomeTabela) {
         this.nomeTabela = nomeTabela;
     }
+
+    @Override
+    public String toString() {
+        return "IndicesFillFactor{" + "nomeDoBanco=" + nomeDoBanco + 
+                ", nomeIndice=" + nomeIndice + ", fillFactor=" + fillFactor + 
+                ", nomeTabela=" + nomeTabela + '}';
+    }
+    
+    
     
     
 }

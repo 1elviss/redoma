@@ -60,7 +60,7 @@ public class Tela_Resumo extends javax.swing.JFrame {
     }
 
     //List<Object> lista ;
-
+    
     public List<IndicesNoPrimary> selecionarIndicesNoPrimary() {
         String sql = "Select  OBJECT_NAME(i.object_id) As Tabela,\n"
                 + "        i.name As Indice, \n"
