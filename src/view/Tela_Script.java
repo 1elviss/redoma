@@ -10,8 +10,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import view.Tela_Data_Base;
 
@@ -22,11 +24,14 @@ import view.Tela_Data_Base;
 public class Tela_Script extends javax.swing.JFrame {
 
     public static Connection conection;
+    public static List<String> selectedBancos;
+
     /**
      * Creates new form Tela_Data_Base
      */
-    public Tela_Script(Connection conection) {
+    public Tela_Script(Connection conection, List<String> selectedBancos) {
         this.conection = conection;
+        this.selectedBancos = selectedBancos;
         initComponents();
     }
 
@@ -56,9 +61,6 @@ public class Tela_Script extends javax.swing.JFrame {
     public void setTelaResumo(Tela_Resumo telaResumo) {
         this.telaResumo = telaResumo;
     }
-    
-    
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -320,26 +322,26 @@ public class Tela_Script extends javax.swing.JFrame {
         this.dispose();
     }
     private void jBtAvançarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtAvançarActionPerformed
-     //   try {
-             //this.conection.close();
-            //existe algo dentro do objeto telaResumo que esta dentro de telaScript
-            if (getTelaResumo() == null) {//nao foi ainda para outra tela
-                //cria nova instancia
-                //passando esta tela como parametro
-                setTelaResumo(new Tela_Resumo());
-                //a tela script agora conhece esta tela caso ela precise voltar
-                //guardando o caminho de volta
-                getTelaResumo().setTelaScript(this);
-                getTelaResumo().setVisible(true);
-                this.dispose();
-            } else {
-                //ja passou pela 3 tela e voltou pra essa
-                this.getTelaResumo().setVisible(true);
-                this.dispose();
-            }
-     //   } catch (SQLException ex) {
-     //       Logger.getLogger(Tela_Script.class.getName()).log(Level.SEVERE, null, ex);
-     //   }
+        //   try {
+        //this.conection.close();
+        //existe algo dentro do objeto telaResumo que esta dentro de telaScript
+        if (getTelaResumo() == null) {//nao foi ainda para outra tela
+            //cria nova instancia
+            //passando esta tela como parametro
+            setTelaResumo(new Tela_Resumo());
+            //a tela script agora conhece esta tela caso ela precise voltar
+            //guardando o caminho de volta
+            getTelaResumo().setTelaScript(this);
+            getTelaResumo().setVisible(true);
+            this.dispose();
+        } else {
+            //ja passou pela 3 tela e voltou pra essa
+            this.getTelaResumo().setVisible(true);
+            this.dispose();
+        }
+        //   } catch (SQLException ex) {
+        //       Logger.getLogger(Tela_Script.class.getName()).log(Level.SEVERE, null, ex);
+        //   }
     }//GEN-LAST:event_jBtAvançarActionPerformed
 
     private void jBtCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtCancelarActionPerformed
@@ -388,7 +390,7 @@ public class Tela_Script extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Tela_Script(conection).setVisible(true);
+                new Tela_Script(conection, selectedBancos).setVisible(true);
             }
         });
     }

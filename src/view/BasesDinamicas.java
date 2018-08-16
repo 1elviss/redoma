@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.border.EmptyBorder;
 import util.Bases;
 
@@ -30,7 +31,7 @@ public class BasesDinamicas extends JFrame {
     private final String consulta = "Select name,database_id From sys.databases;";
     private JPanel contentPane;
     private List<JCheckBox> checkboxes = new ArrayList<>();
-
+    private List<String> opcoesSelected = new ArrayList<>();
     //declaracao de botoes 
     private javax.swing.JButton jBtAjuda = new javax.swing.JButton();
     private javax.swing.JButton jBtAvancar = new javax.swing.JButton();
@@ -41,6 +42,7 @@ public class BasesDinamicas extends JFrame {
     private javax.swing.JPanel jPanelFuncao = new javax.swing.JPanel();
     private javax.swing.JPanel jPanel2 = new javax.swing.JPanel();
     private javax.swing.JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
+    private Connection con;
 
     /**
      * Launch the application.
@@ -51,6 +53,32 @@ public class BasesDinamicas extends JFrame {
 
     }
 
+    private void jBtAvancarActionPerformed(java.awt.event.ActionEvent evt) {
+
+        int count = 0;
+        for (int i = 0; i < this.checkboxes.size(); i++) {
+            JCheckBox checkBox = this.checkboxes.get(i);
+            if (checkBox.isSelected()) {
+                this.opcoesSelected.add(checkBox.getName());
+            }
+        }
+        Tela_Script telascript = new Tela_Script(this.con, this.opcoesSelected);
+        telascript.setVisible(true);
+        this.dispose();
+    }
+
+    private void jBtCancelarActionPerformed(java.awt.event.ActionEvent evt) {
+
+        int resposta = JOptionPane.showConfirmDialog(null, "Deseja Sair Realmente ?");
+        if (resposta == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
+    }
+
+    private void jBtAjudaActionPerformed(java.awt.event.ActionEvent evt) {
+        // TODO add your handling code here:
+    }
+
     /**
      * Create the frame.
      *
@@ -58,6 +86,7 @@ public class BasesDinamicas extends JFrame {
      */
     //monta uma tela para inclusão dos checkboxes
     public BasesDinamicas(Connection con) {
+        this.con = con;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 450, 400);
         setTitle("DataBase");
@@ -75,13 +104,37 @@ public class BasesDinamicas extends JFrame {
         jBtAjuda.setPreferredSize(new java.awt.Dimension(100, 30));
         jPanelFuncao.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
+        jBtAvancar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBtAvancarActionPerformed(evt);
+            }
+        });
+
+        jBtCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBtCancelarActionPerformed(evt);
+            }
+        });
+
+        jBtAjuda.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBtAjudaActionPerformed(evt);
+            }
+        });
+
         jPanelFuncao.add(jBtAvancar);
         jPanelFuncao.add(jBtCancelar);
         jPanelFuncao.add(jBtAjuda);
 
-        
+        ListarCheckbox(getDb(con));
+
+        for (int i = 0; i < this.checkboxes.size(); i++) {
+            JCheckBox checkBox = this.checkboxes.get(i);
+            checkBox.setBounds(10, i, 10, 10);
+            jPanel2.add(checkBox);
+        }
+
         // adicionar lista de checkbox em JPnael2 e ta ok
-        jPanel2.add(jBtAvancar);
         jScrollPane1.setViewportView(jPanel2);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(contentPane);
@@ -98,7 +151,7 @@ public class BasesDinamicas extends JFrame {
                                         .addGroup(jPanel1Layout.createSequentialGroup()
                                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                         .addComponent(jLbdsistemico)
-                                                        .addComponent(jScrollPane1,javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
+                                                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
                                                         .addComponent(jLbdUsuario))
                                                 .addContainerGap(334, Short.MAX_VALUE))
                                         .addGroup(jPanel1Layout.createSequentialGroup()
@@ -112,7 +165,7 @@ public class BasesDinamicas extends JFrame {
                         .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addComponent(jLbdsistemico)
-                                .addComponent(jScrollPane1,javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
                                 .addGap(10, 10, 180)
                                 .addComponent(jLbdUsuario)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -122,12 +175,6 @@ public class BasesDinamicas extends JFrame {
         );
 
         setContentPane(contentPane);
-        ListarCheckbox(getDb(con));
-//        for (int i = 0; i < this.checkboxes.size(); i++) {
-//            JCheckBox checkBox = this.checkboxes.get(i);
-//            checkBox.setBounds(10, 20, 10, 10);
-//            contentPane.add(checkBox);
-//        }
 
     }
 

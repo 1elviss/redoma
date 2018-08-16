@@ -40,7 +40,7 @@
               <EmptySpace max="32767" attributes="0"/>
               <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="jPanelFuncao" pref="37" max="32767" attributes="0"/>
+              <Component id="jPanelFuncao" pref="83" max="32767" attributes="0"/>
               <EmptySpace min="-2" pref="39" max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -66,13 +66,17 @@
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="jCheckBoxDWcoportativo" min="-2" max="-2" attributes="0"/>
                               <Component id="jCheckBoxAcademico" min="-2" max="-2" attributes="0"/>
-                              <Component id="jCheckBoxFolhaPagamento" min="-2" max="-2" attributes="0"/>
-                              <Component id="jCheckBoxMsdb" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLbdsistemico" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="jCheckBoxMaster" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLbdUsuario" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Group type="102" attributes="0">
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="jCheckBoxFolhaPagamento" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLbdUsuario" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLbdsistemico" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace min="-2" pref="65" max="-2" attributes="0"/>
+                                  <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
+                              </Group>
                           </Group>
-                          <EmptySpace pref="334" max="32767" attributes="0"/>
+                          <EmptySpace pref="74" max="32767" attributes="0"/>
                       </Group>
                       <Component id="jScrollBar1" max="32767" attributes="0"/>
                       <Group type="102" attributes="0">
@@ -80,7 +84,7 @@
                               <Component id="jCheckBoxDataMart" min="-2" max="-2" attributes="0"/>
                               <Component id="jScrollPane1" alignment="0" min="-2" pref="100" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="370" max="32767" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -89,14 +93,18 @@
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <Component id="jScrollPane1" min="-2" pref="100" max="-2" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jLbdsistemico" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="jCheckBoxMaster" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="jCheckBoxMsdb" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="1" attributes="0">
+                          <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="119" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" attributes="0">
+                          <Component id="jScrollPane1" min="-2" pref="100" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="17" max="-2" attributes="0"/>
+                          <Component id="jLbdsistemico" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="41" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
                   <Component id="jLbdUsuario" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="jCheckBoxFolhaPagamento" min="-2" max="-2" attributes="0"/>
@@ -116,16 +124,6 @@
         <Component class="javax.swing.JLabel" name="jLbdsistemico">
           <Properties>
             <Property name="text" type="java.lang.String" value="Banco de Dados Sist&#xea;mico"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JCheckBox" name="jCheckBoxMaster">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Master"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JCheckBox" name="jCheckBoxMsdb">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Msdb"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLbdUsuario">
@@ -182,6 +180,46 @@
                 </DimensionLayout>
               </Layout>
             </Container>
+          </SubComponents>
+        </Container>
+        <Container class="javax.swing.JPanel" name="jPanel3">
+
+          <Layout>
+            <DimensionLayout dim="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jCheckBoxMsdb" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="jCheckBoxMaster" alignment="0" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace pref="130" max="32767" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+            <DimensionLayout dim="1">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="1" attributes="0">
+                      <EmptySpace pref="49" max="32767" attributes="0"/>
+                      <Component id="jCheckBoxMsdb" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="jCheckBoxMaster" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+          </Layout>
+          <SubComponents>
+            <Component class="javax.swing.JCheckBox" name="jCheckBoxMsdb">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Msdb"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="jCheckBoxMaster">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Master"/>
+              </Properties>
+            </Component>
           </SubComponents>
         </Container>
       </SubComponents>

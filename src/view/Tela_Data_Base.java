@@ -33,8 +33,6 @@ public class Tela_Data_Base extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jLbdsistemico = new javax.swing.JLabel();
-        jCheckBoxMaster = new javax.swing.JCheckBox();
-        jCheckBoxMsdb = new javax.swing.JCheckBox();
         jLbdUsuario = new javax.swing.JLabel();
         jCheckBoxFolhaPagamento = new javax.swing.JCheckBox();
         jCheckBoxAcademico = new javax.swing.JCheckBox();
@@ -43,6 +41,9 @@ public class Tela_Data_Base extends javax.swing.JFrame {
         jScrollBar1 = new javax.swing.JScrollBar();
         jScrollPane1 = new javax.swing.JScrollPane();
         jPanel2 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        jCheckBoxMsdb = new javax.swing.JCheckBox();
+        jCheckBoxMaster = new javax.swing.JCheckBox();
         jPanelFuncao = new javax.swing.JPanel();
         jBtAvancar = new javax.swing.JButton();
         jBtCancelar = new javax.swing.JButton();
@@ -54,10 +55,6 @@ public class Tela_Data_Base extends javax.swing.JFrame {
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Selecione o(s) DataBase(s)"));
 
         jLbdsistemico.setText("Banco de Dados Sistêmico");
-
-        jCheckBoxMaster.setText("Master");
-
-        jCheckBoxMsdb.setText("Msdb");
 
         jLbdUsuario.setText("Banco de Dados de Usuários");
 
@@ -85,6 +82,31 @@ public class Tela_Data_Base extends javax.swing.JFrame {
 
         jScrollPane1.setViewportView(jPanel2);
 
+        jCheckBoxMsdb.setText("Msdb");
+
+        jCheckBoxMaster.setText("Master");
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jCheckBoxMsdb)
+                    .addComponent(jCheckBoxMaster))
+                .addContainerGap(130, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap(49, Short.MAX_VALUE)
+                .addComponent(jCheckBoxMsdb)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jCheckBoxMaster)
+                .addGap(30, 30, 30))
+        );
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -96,30 +118,33 @@ public class Tela_Data_Base extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jCheckBoxDWcoportativo)
                             .addComponent(jCheckBoxAcademico)
-                            .addComponent(jCheckBoxFolhaPagamento)
-                            .addComponent(jCheckBoxMsdb)
-                            .addComponent(jLbdsistemico)
-                            .addComponent(jCheckBoxMaster)
-                            .addComponent(jLbdUsuario))
-                        .addContainerGap(334, Short.MAX_VALUE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jCheckBoxFolhaPagamento)
+                                    .addComponent(jLbdUsuario)
+                                    .addComponent(jLbdsistemico))
+                                .addGap(65, 65, 65)
+                                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap(74, Short.MAX_VALUE))
                     .addComponent(jScrollBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jCheckBoxDataMart)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                        .addGap(0, 370, Short.MAX_VALUE))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLbdsistemico)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jCheckBoxMaster)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jCheckBoxMsdb)
-                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(119, 119, 119))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(17, 17, 17)
+                        .addComponent(jLbdsistemico)
+                        .addGap(41, 41, 41)))
                 .addComponent(jLbdUsuario)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jCheckBoxFolhaPagamento)
@@ -179,7 +204,7 @@ public class Tela_Data_Base extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jPanelFuncao, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
+                .addComponent(jPanelFuncao, javax.swing.GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
                 .addGap(39, 39, 39))
         );
 
@@ -261,6 +286,7 @@ public class Tela_Data_Base extends javax.swing.JFrame {
     private javax.swing.JLabel jLbdsistemico;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanelFuncao;
     private javax.swing.JScrollBar jScrollBar1;
     private javax.swing.JScrollPane jScrollPane1;
