@@ -1,14 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package model.bean;
 
-/**
- *
- * @author elvis
- */
 public class IndicesFillFactor {
     private String nomeDoBanco;
     private String nomeIndice;
@@ -46,12 +37,18 @@ public class IndicesFillFactor {
     public void setNomeTabela(String nomeTabela) {
         this.nomeTabela = nomeTabela;
     }
+    
+    public String cabecalho() {
+        String cabecalhoTabela = String.format("|%-20s|%-30s|%-20s|%-20s|\n",
+                "nomeDoBanco", "nomeIndice", "fillFactor", "nomeTabela");
+        return cabecalhoTabela;
+    }
 
     @Override
     public String toString() {
-        return "IndicesFillFactor{" + "nomeDoBanco=" + nomeDoBanco + 
-                ", nomeIndice=" + nomeIndice + ", fillFactor=" + fillFactor + 
-                ", nomeTabela=" + nomeTabela + '}';
+        String corpoTabela = String.format("|%-20s|%-30s|%-20s|%-20s|\n", nomeDoBanco,
+                nomeIndice, fillFactor, nomeTabela);
+        return corpoTabela;
     }
     
     

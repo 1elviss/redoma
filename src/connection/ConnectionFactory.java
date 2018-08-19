@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package connection;
 
 import java.sql.Connection;
@@ -13,69 +8,60 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author elvis
- */
 public class ConnectionFactory {
 
-    private final String DRIVER = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-    private final String connectionUrl = "jdbc:sqlserver://localhost:1433;";
-    /*+ "databaseName=AdventureWorks;"
-            + "user=MyUserName;passwor d=*****;";  
-    Connection con;*/
-    private final String USER = "elvis";
-    private final String PASS = "";
+    //criação da constante POR CONVENSAO EM CAIXA ALTA
+    private static final String DRIVER = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+    private static final String URL = "jdbc:sqlserver://localhost:1433;"
+            + "databaseName=Curso";
+    private static final String USER = "";
+    private static final String PASSWORD = "";
 
-    /*public ConnectionFactory() {
-        try {
-            this.con = DriverManager.getConnection(connectionUrl);
-        } catch (SQLException ex) {
-            Logger.getLogger(ConnectionFactory.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }*/
-    public Connection getConnection() {
+    public static Connection getConnection() {
         try {
             Class.forName(DRIVER);
 
-            return DriverManager.getConnection(DRIVER, USER, PASS);
+            return DriverManager.getConnection(URL, USER, PASSWORD);
         } catch (ClassNotFoundException | SQLException ex) {
-            throw new RuntimeException("Erro na conexão: ", ex);
+            throw new RuntimeException("Erro na Conexão: " + ex);
         }
     }
 
+    //toda vez que eu abrir conexao eu devo fecha-la para nao sobrecarregar o servidor
     public static void closeConnection(Connection con) {
         try {
             if (con != null) {
+                System.out.println("Fechando a conexao");
                 con.close();
             }
         } catch (SQLException ex) {
             Logger.getLogger(ConnectionFactory.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
+    //sobrecarga do metodo de cima
     public static void closeConnection(Connection con, PreparedStatement stmt) {
         closeConnection(con);
-        
         try {
-            if(stmt != null){
+            if (stmt != null) {
+                System.out.println("Fechando a declaração");
                 stmt.close();
             }
         } catch (SQLException ex) {
             Logger.getLogger(ConnectionFactory.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
+    //sobrecarga do metodo de cima
     public static void closeConnection(Connection con, PreparedStatement stmt, ResultSet rs) {
         closeConnection(con, stmt);
-        
         try {
-            if(rs != null){
+            if (rs != null) {
+                System.out.println("Fechando a declaração");
                 rs.close();
             }
         } catch (SQLException ex) {
             Logger.getLogger(ConnectionFactory.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
 }
