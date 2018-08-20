@@ -5,63 +5,29 @@
  */
 package view;
 
-
 import javax.swing.JOptionPane;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import util.ConnectionFactory;
 
 /**
  *
  * @author aldam
  */
 public class Tela_Login_Principal extends javax.swing.JFrame {
-
-    private Connection connection;
-
-    private String nomeServidor;
-    private String usuario;
-    //mudar para password
-    private char[] senha;
-
-    public Connection getConnection() {
-        return connection;
-    }
-    
-    public String getNomeServidor() {
-        return nomeServidor;
-    }
-
-    public void setNomeServidor(String nomeServidor) {
-        this.nomeServidor = nomeServidor;
-    }
-
-    public String getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(String usuario) {
-        this.usuario = usuario;
-    }
-
-    public char[] getSenha() {
-        return senha;
-    }
-
-    public void setSenha(char[] senha) {
-        this.senha = senha;
-    }
-
     /**
      * Creates new form telaLogin
      */
+    
+     private Connection con;
     public Tela_Login_Principal() {
         initComponents();
     }
-    
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -79,9 +45,9 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
         jLnomUsuario = new javax.swing.JLabel();
         jLsenha = new javax.swing.JLabel();
         jTextFieldNomServidor = new javax.swing.JTextField();
-        jComboBoxAutenticar = new javax.swing.JComboBox<>();
+        jComboBoxAutenticar = new javax.swing.JComboBox<String>();
         jTextFieldNomUsuario = new javax.swing.JTextField();
-        jPasswordFieldSenha = new javax.swing.JPasswordField();
+        jPasswordField1 = new javax.swing.JPasswordField();
         jPanelFuncao = new javax.swing.JPanel();
         jBtConectar = new javax.swing.JButton();
         jBtSair = new javax.swing.JButton();
@@ -123,17 +89,11 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
             }
         });
 
-        jComboBoxAutenticar.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Autenticação do SQL Server" }));
+        jComboBoxAutenticar.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Autenticação do SQL Server" }));
 
         jTextFieldNomUsuario.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextFieldNomUsuarioActionPerformed(evt);
-            }
-        });
-
-        jPasswordFieldSenha.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jPasswordFieldSenhaActionPerformed(evt);
             }
         });
 
@@ -169,7 +129,7 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jTextFieldNomUsuario)
-                                    .addComponent(jPasswordFieldSenha))))
+                                    .addComponent(jPasswordField1))))
                         .addContainerGap())))
         );
         jPanelPrincipalLayout.setVerticalGroup(
@@ -191,11 +151,14 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
                 .addGroup(jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextFieldNomUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLnomUsuario))
-                .addGap(20, 20, 20)
-                .addGroup(jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jPasswordFieldSenha, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLsenha))
-                .addGap(75, 75, 75))
+                .addGroup(jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelPrincipalLayout.createSequentialGroup()
+                        .addGap(30, 30, 30)
+                        .addComponent(jLsenha))
+                    .addGroup(jPanelPrincipalLayout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(82, 82, 82))
         );
 
         jPanelFuncao.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -253,30 +216,29 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jBtConectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtConectarActionPerformed
-
-        this.setNomeServidor(jTextFieldNomServidor.getText());
-        this.setUsuario(jTextFieldNomUsuario.getText());
-        this.setSenha(jPasswordFieldSenha.getPassword());
-
-        String url = "jdbc:sqlserver://" + this.getNomeServidor()
-                + ";user=" + this.getUsuario() + ";password=" + new String(this.getSenha()) + ";";
-        try {
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            connection = DriverManager.getConnection(url);
-            //passando as informações da conexao
-            Tela_Data_Base tdb = new Tela_Data_Base(getConnection());
-            tdb.setVisible(true);
-            this.dispose();
-        } catch (ClassNotFoundException | SQLException e) {
-            JOptionPane.showMessageDialog(null, "Usuario ou senha incorretos !");
-            e.printStackTrace();
-        }
-
+   
+      ConnectionFactory fabrica = new ConnectionFactory();
+      con = fabrica.getConnection(jTextFieldNomServidor.getText(),jTextFieldNomUsuario.getText(), new String(jPasswordField1.getPassword())); 
+        
+      if (con!= null) {
+             BasesDinamicas tdb = new BasesDinamicas(con);
+             tdb.setVisible(true);
+             this.dispose();
+         } 
     }//GEN-LAST:event_jBtConectarActionPerformed
 
     private void jBtSairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtSairActionPerformed
         int resposta = JOptionPane.showConfirmDialog(null, "Deseja Sair Realmente ?");
+        if ( con !=null){
+            try {
+                con.close();
+            } catch (SQLException ex) {
+                //erro ao fechar a conexão 
+                Logger.getLogger(Tela_Login_Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         if (resposta == JOptionPane.YES_OPTION) {
+            
             System.exit(0);
         }  
     }//GEN-LAST:event_jBtSairActionPerformed
@@ -299,10 +261,6 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
     private void jTextFieldNomUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldNomUsuarioActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextFieldNomUsuarioActionPerformed
-
-    private void jPasswordFieldSenhaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jPasswordFieldSenhaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jPasswordFieldSenhaActionPerformed
 
     /**
      * @param args the command line arguments
@@ -341,6 +299,7 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
             }
         });
     }
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jBtAjuda;
@@ -355,7 +314,7 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
     private javax.swing.JLabel jLsimblo;
     private javax.swing.JPanel jPanelFuncao;
     private javax.swing.JPanel jPanelPrincipal;
-    private javax.swing.JPasswordField jPasswordFieldSenha;
+    private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JTextField jTextFieldNomServidor;
     private javax.swing.JTextField jTextFieldNomUsuario;
     // End of variables declaration//GEN-END:variables
