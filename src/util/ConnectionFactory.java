@@ -20,7 +20,7 @@ import javax.swing.JOptionPane;
 
 public class ConnectionFactory {
 
-    private Connection connection;
+    private static Connection connection;
     private String nomeServidor;
     private String usuario;
     private String senha;
@@ -50,7 +50,7 @@ public class ConnectionFactory {
         return connection;
     }
 
-    public void Close() {
+    public static void close() {
         try {
             connection.close();
         } catch (SQLException ex) {

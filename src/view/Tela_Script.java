@@ -9,13 +9,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import util.ConnectionFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import view.Tela_Data_Base;
+import model.bean.IndicesNoPrimary;
+import util.Arquivo;
 
 /**
  *
@@ -25,6 +31,13 @@ public class Tela_Script extends javax.swing.JFrame {
 
     public static Connection conection;
     public static List<String> selectedBancos;
+    private List<String> listaResultSetString = new ArrayList<>();
+
+    private String idBanco;
+
+    private String getIdBanco() {
+        return idBanco;
+    }
 
     /**
      * Creates new form Tela_Data_Base
@@ -32,16 +45,64 @@ public class Tela_Script extends javax.swing.JFrame {
     public Tela_Script(Connection conection, List<String> selectedBancos) {
         this.conection = conection;
         this.selectedBancos = selectedBancos;
+        this.idBanco = selectedBancos.get(0);
         initComponents();
     }
 
     public Tela_Script() {
         initComponents();
     }
-//    public Tela_Script(Tela_Data_Base tdb) {
-//        this.tdb = tdb;
-//        initComponents();
-//   }
+
+    public List<String> selecionarIndicesNoPrimary() {
+        //pegando a conexao com o banco       
+        String selectNoPrimary = "Select    OBJECT_NAME(i.object_id) As Tabela,\n"
+                + "             i.name As Indice, \n"
+                + "             i.object_id IddoObjetoIndice,\n"
+                + "             fg.name as GrupoDeARQUIVO,\n"
+                + "             i.type_desc as TipoDeIndice,\n"
+                + "             o.type as TipoTabela\n"
+                + "  from sys.indexes as i  \n"
+                + "       inner join sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
+                + "       inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id \n"
+                + "       inner join sys.objects as o on o.object_id = i.object_id\n"
+                + "	  inner join sys.master_files as smf on smf.data_space_id = ds.data_space_id\n"
+                + "	  inner join sys.databases as db on db.database_id = smf.database_id\n"
+                + " where((o.type ='U') and (fg.filegroup_guid IS NULL) and (OBJECT_NAME(i.object_id) <> 'sysdiagrams') and (db.database_id =" + this.getIdBanco() + "))";
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            stmt = conection.prepareStatement(selectNoPrimary);
+            //PEGANDO O ID
+            //   where((o.type ='U') and (fg.filegroup_guid IS NULL) and (OBJECT_NAME(i.object_id) <> 'sysdiagrams') and db.database_id = ?)";
+            //   stmt.setInt(1, getIdDoBanco());
+            rs = stmt.executeQuery();
+            //para percorrer o resultSet
+            IndicesNoPrimary inp = new IndicesNoPrimary();
+            //adicionando o cabeçaho da tabela no array de String posicao get(0)
+            listaResultSetString.add(inp.cabecalho());
+            System.out.println(inp.cabecalho());
+            while (rs.next()) {//enquanto houver próximo;
+                inp.setNomeDaTabela(rs.getString("Tabela"));
+                inp.setNomeDoIndice(rs.getString("Indice"));
+                inp.setIdDoObjeto(rs.getLong("IddoObjetoIndice"));
+                inp.setGrupoDeArquivo(rs.getString("GrupoDeARQUIVO"));
+                inp.setTipoDeIndice(rs.getString("TipoDeIndice"));
+                inp.setTipoDeTabela(rs.getString("TipoTabela"));
+
+                System.out.println(inp.toString());
+                //adicionando o corpo da tabela no array de String
+                listaResultSetString.add(inp.toString());
+            }
+        } catch (SQLException ex) {
+            System.err.println("Erro :" + ex);
+        } finally {
+            //fechando a conexao com o banco de dados
+            ConnectionFactory.close();
+        }
+        return listaResultSetString;
+    }
 
     private Tela_Data_Base telaDataBase;
     private Tela_Resumo telaResumo;
