@@ -390,7 +390,7 @@ public class Tela_Script extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_checkFileGroupPrimaryActionPerformed
 
-    private void jCheckBoxFillFactorActionPerformed(java.awt.event.ActionEvent evt) {                                                    
+    private void jCheckBoxFillFactorActionPerformed(java.awt.event.ActionEvent evt) {
         // Listar todos os índices com Fillfactor menor que X - parâmetro int;
         if (jCheckBoxFillFactor.isSelected()) {
             int parametroFill = Integer.parseInt(jTextField3.getText());
@@ -442,10 +442,9 @@ public class Tela_Script extends javax.swing.JFrame {
                 }
             }
         }
-    }                                                   
+    }
 
-
-    private void jCheckBoxIndiceNaoUtilizadoActionPerformed(java.awt.event.ActionEvent evt) {                                                            
+    private void jCheckBoxIndiceNaoUtilizadoActionPerformed(java.awt.event.ActionEvent evt) {
         // Cristiano: Índices não utilizados
         String idxNaoUtilizados = "SELECT  OBJECT_NAME(i.[object_id]) AS [Table Name] ,\n"
                 + "        i.name\n"
@@ -495,66 +494,66 @@ public class Tela_Script extends javax.swing.JFrame {
                 Logger.getLogger(Tela_Resumo.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }                                                           
+    }
 
-    private void jCheckBoxIndexClusterTipoVariavelActionPerformed(java.awt.event.ActionEvent evt) {                                                                  
+    private void jCheckBoxIndexClusterTipoVariavelActionPerformed(java.awt.event.ActionEvent evt) {
         // listar todos os indeces custered com tipo de dados variantes
 
-            String idxCustered = "SELECT distinct\n"
-                    + "clmns.column_id AS [ID],\n"
-                    + "clmns.name AS [Name],\n"
-                    + "ISNULL(baset.name, N'') AS [SystemType],\n"
-                    + "ik.type_desc\n"
-                    + "FROM\n"
-                    + "sys.tables AS tbl\n"
-                    + "INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
-                    + "LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1)) \n"
-                    + "LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
-                    + "LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
-                    + "WHERE tbl.name='TB_NOSSO_TESTE'\n"
-                    + " and ik.type = 1\n"
-                    + " and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
-                    + "ORDER BY\n"
-                    + "[ID] ASC";
+        String idxCustered = "SELECT distinct\n"
+                + "clmns.column_id AS [ID],\n"
+                + "clmns.name AS [Name],\n"
+                + "ISNULL(baset.name, N'') AS [SystemType],\n"
+                + "ik.type_desc\n"
+                + "FROM information_schema.tables,\n"
+                + "sys.tables AS tbl\n"
+                + "INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
+                + "LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1)) \n"
+                + "LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
+                + "LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
+                + "WHERE table_type = 'base table' \n"
+                + " and ik.type = 1\n"
+                + " and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
+                + "ORDER BY\n"
+                + "[ID] ASC";
 
-            //abrir conexao;
-            Connection minhaConexao = new Tela_Resumo().getTelaScript().conection;
-            PreparedStatement stmt = null;
-            ResultSet rs = null;
+        //abrir conexao;
+        Connection minhaConexao = new Tela_Resumo().getTelaScript().conection;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
 
-            List<IndicesClustered> listaResultSet = new ArrayList<>();
+        List<IndicesClustered> listaResultSet = new ArrayList<>();
 
-            try {
-                //É preciso percorrer o PreparedStatement
-                /*toda a consulta ta denro do do stmt que e a declaracao ja prepada
+        try {
+            //É preciso percorrer o PreparedStatement
+            /*toda a consulta ta denro do do stmt que e a declaracao ja prepada
             (Prepared Stamtement)*/
-                //Preparou tudo mas e preciso executar
-                stmt = minhaConexao.prepareStatement(idxCustered);
-                //retorna um resultset o executeQuery()
-                //valores retornados estao em rs
-                rs = stmt.executeQuery();//query porque e consulta 
-                //para percorrer o resultSet
+            //Preparou tudo mas e preciso executar
+            stmt = minhaConexao.prepareStatement(idxCustered);
+            //retorna um resultset o executeQuery()
+            //valores retornados estao em rs
+            rs = stmt.executeQuery();//query porque e consulta 
+            //para percorrer o resultSet
 
-                while (rs.next()) {//enquanto houver próximo;
-                    IndicesClustered inc = new IndicesClustered();
+            while (rs.next()) {//enquanto houver próximo;
+                IndicesClustered inc = new IndicesClustered();
 
-                    inc.setNomeTabela("nomeTabela");
-                    inc.setTipoDedadoVariante("tipoDedadoVariante");
-                    inc.setIndecesCustered("indecesCustered");
+                inc.setNomeTabela("nomeTabela");
+                inc.setTipoDedadoVariante("tipoDedadoVariante");
+                inc.setIndecesCustered("indecesCustered");
 
-                    listaResultSet.add(inc);
-                }
+                listaResultSet.add(inc);
+            }
 
+        } catch (SQLException ex) {
+            System.err.println("Erro :" + ex);
+        } finally {
+            try {
+                minhaConexao.close();
             } catch (SQLException ex) {
-                System.err.println("Erro :" + ex);
-            } finally {
-                try {
-                    minhaConexao.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(Tela_Resumo.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }      
-    }                                                                 
+                Logger.getLogger(Tela_Resumo.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
 
     private void jCheckBoxFillFactorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxFillFactorActionPerformed
         // Listar todos os índices com Fillfactor menor que X - parâmetro int;
@@ -666,120 +665,63 @@ public class Tela_Script extends javax.swing.JFrame {
     private void jCheckBoxIndexClusterTipoVariavelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxIndexClusterTipoVariavelActionPerformed
         // listar todos os indeces custered com tipo de dados variantes
 
-            String idxCustered = "SELECT distinct\n"
-                    + "clmns.column_id AS [ID],\n"
-                    + "clmns.name AS [Name],\n"
-                    + "ISNULL(baset.name, N'') AS [SystemType],\n"
-                    + "ik.type_desc\n"
-                    + "FROM\n"
-                    + "sys.tables AS tbl\n"
-                    + "INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
-                    + "LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1)) \n"
-                    + "LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
-                    + "LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
-                    + "WHERE tbl.name='TB_NOSSO_TESTE'\n"
-                    + " and ik.type = 1\n"
-                    + " and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
-                    + "ORDER BY\n"
-                    + "[ID] ASC";
+        String idxCustered = "SELECT distinct\n"
+                + "clmns.column_id AS [ID],\n"
+                + "clmns.name AS [Name],\n"
+                + "ISNULL(baset.name, N'') AS [SystemType],\n"
+                + "ik.type_desc\n"
+                + "FROM information_schema.tables,\n"
+                + "sys.tables AS tbl\n"
+                + "INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
+                + "LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1)) \n"
+                + "LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
+                + "LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
+                + "WHERE table_type = 'base table' \n"
+                + " and ik.type = 1\n"
+                + " and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
+                + "ORDER BY\n"
+                + "[ID] ASC";
 
-            //abrir conexao;
-            Connection minhaConexao = new Tela_Resumo().getTelaScript().conection;
-            PreparedStatement stmt = null;
-            ResultSet rs = null;
+        //abrir conexao;
+        Connection minhaConexao = new Tela_Resumo().getTelaScript().conection;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
 
-            List<IndicesClustered> listaResultSet = new ArrayList<>();
+        List<IndicesClustered> listaResultSet = new ArrayList<>();
 
-            try {
-                //É preciso percorrer o PreparedStatement
-                /*toda a consulta ta denro do do stmt que e a declaracao ja prepada
+        try {
+            //É preciso percorrer o PreparedStatement
+            /*toda a consulta ta denro do do stmt que e a declaracao ja prepada
             (Prepared Stamtement)*/
-                //Preparou tudo mas e preciso executar
-                stmt = minhaConexao.prepareStatement(idxCustered);
-                //retorna um resultset o executeQuery()
-                //valores retornados estao em rs
-                rs = stmt.executeQuery();//query porque e consulta 
-                //para percorrer o resultSet
+            //Preparou tudo mas e preciso executar
+            stmt = minhaConexao.prepareStatement(idxCustered);
+            //retorna um resultset o executeQuery()
+            //valores retornados estao em rs
+            rs = stmt.executeQuery();//query porque e consulta 
+            //para percorrer o resultSet
 
-                while (rs.next()) {//enquanto houver próximo;
-                    IndicesClustered inc = new IndicesClustered();
+            while (rs.next()) {//enquanto houver próximo;
+                IndicesClustered inc = new IndicesClustered();
 
-                    inc.setNomeTabela("nomeTabela");
-                    inc.setTipoDedadoVariante("tipoDedadoVariante");
-                    inc.setIndecesCustered("indecesCustered");
+                inc.setNomeTabela("nomeTabela");
+                inc.setTipoDedadoVariante("tipoDedadoVariante");
+                inc.setIndecesCustered("indecesCustered");
 
-                    listaResultSet.add(inc);
-                }
+                listaResultSet.add(inc);
+            }
 
+        } catch (SQLException ex) {
+            System.err.println("Erro :" + ex);
+        } finally {
+            try {
+                minhaConexao.close();
             } catch (SQLException ex) {
-                System.err.println("Erro :" + ex);
-            } finally {
-                try {
-                    minhaConexao.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(Tela_Resumo.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }      
+                Logger.getLogger(Tela_Resumo.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
     }//GEN-LAST:event_jCheckBoxIndexClusterTipoVariavelActionPerformed
 
-      private void jCheckBoxIndexClusterTipoVariavelActionPerformed(java.awt.event.ActionEvent evt) {                                                                  
-        // listar todos os indeces custered com tipo de dados variantes
-
-            String idxCustered = "SELECT distinct\n"
-                    + "clmns.column_id AS [ID],\n"
-                    + "clmns.name AS [Name],\n"
-                    + "ISNULL(baset.name, N'') AS [SystemType],\n"
-                    + "ik.type_desc\n"
-                    + "FROM\n"
-                    + "sys.tables AS tbl\n"
-                    + "INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
-                    + "LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1)) \n"
-                    + "LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
-                    + "LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
-                    + "WHERE tbl.name='TB_NOSSO_TESTE'\n"
-                    + " and ik.type = 1\n"
-                    + " and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
-                    + "ORDER BY\n"
-                    + "[ID] ASC";
-
-            //abrir conexao;
-            Connection minhaConexao = new Tela_Resumo().getTelaScript().conection;
-            PreparedStatement stmt = null;
-            ResultSet rs = null;
-
-            List<IndicesClustered> listaResultSet = new ArrayList<>();
-
-            try {
-                //É preciso percorrer o PreparedStatement
-                /*toda a consulta ta denro do do stmt que e a declaracao ja prepada
-            (Prepared Stamtement)*/
-                //Preparou tudo mas e preciso executar
-                stmt = minhaConexao.prepareStatement(idxCustered);
-                //retorna um resultset o executeQuery()
-                //valores retornados estao em rs
-                rs = stmt.executeQuery();//query porque e consulta 
-                //para percorrer o resultSet
-
-                while (rs.next()) {//enquanto houver próximo;
-                    IndicesClustered inc = new IndicesClustered();
-
-                    inc.setNomeTabela("nomeTabela");
-                    inc.setTipoDedadoVariante("tipoDedadoVariante");
-                    inc.setIndecesCustered("indecesCustered");
-
-                    listaResultSet.add(inc);
-                }
-
-            } catch (SQLException ex) {
-                System.err.println("Erro :" + ex);
-            } finally {
-                try {
-                    minhaConexao.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(Tela_Resumo.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }      
-    } 
     /**
      * @param args the command line arguments
      */
@@ -816,26 +758,6 @@ public class Tela_Script extends javax.swing.JFrame {
                 new Tela_Script(conection).setVisible(true);
             }
         });
-        
-         public void indicesVariantes(){
-       
-            String idxCustered = "SELECT distinct\n"
-                    + "clmns.column_id AS [ID],\n"
-                    + "clmns.name AS [Name],\n"
-                    + "ISNULL(baset.name, N'') AS [SystemType],\n"
-                    + "ik.type_desc\n"
-                    + "FROM\n"
-                    + "sys.tables AS tbl\n"
-                    + "INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
-                    + "LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1)) \n"
-                    + "LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
-                    + "LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
-                    + "WHERE tbl.name='TB_NOSSO_TESTE'\n"
-                    + " and ik.type = 1\n"
-                    + " and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
-                    + "ORDER BY\n"
-                    + "[ID] ASC";
-        }
     }
 
     public void IndicesFillFactor() {
@@ -883,29 +805,28 @@ public class Tela_Script extends javax.swing.JFrame {
                     + "inner join sys.objects as o on o.object_id = i.object_id\n"
                     + "where (o.type ='U') and (fg.filegroup_guid IS NULL) and (OBJECT_NAME(i.object_id) <> 'sysdiagrams')";
         }
-        
-        
+    }
 
-    public void indicesVariantes(){
-       
+    public void indicesVariantes() {
+        if (jCheckBoxIndexClusterTipoVariavel.isSelected()) {
             String idxCustered = "SELECT distinct\n"
                     + "clmns.column_id AS [ID],\n"
                     + "clmns.name AS [Name],\n"
                     + "ISNULL(baset.name, N'') AS [SystemType],\n"
                     + "ik.type_desc\n"
-                    + "FROM\n"
+                    + "FROM information_schema.tables,\n"
                     + "sys.tables AS tbl\n"
                     + "INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
                     + "LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1)) \n"
                     + "LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
                     + "LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
-                    + "WHERE tbl.name='TB_NOSSO_TESTE'\n"
+                    + "WHERE table_type = 'base table' \n"
                     + " and ik.type = 1\n"
                     + " and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
                     + "ORDER BY\n"
                     + "[ID] ASC";
         }
-}
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
