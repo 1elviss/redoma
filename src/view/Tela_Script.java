@@ -451,14 +451,22 @@ public class Tela_Script extends javax.swing.JFrame {
 
     public void tabelasHeap() {
         if (jCheckBoxTableHeap.isSelected()) {
-            String selectHeap = "SELECT i.name AS index_name\n"
-                    + "                     , i.type_desc\n"
-                    + "                     ,is_unique\n"
-                    + "                     ,is_primary_key \n"
-                    + "                     FROM sys.indexes AS i\n"
-                    + "                     INNER JOIN sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
-                    + "                     WHERE is_hypothetical = 0 AND i.index_id<> 0\n"
-                    + "                     AND i.object_id = OBJECT_ID('dbo.campeonatos')";
+            String selectHeap
+                    = "SELECT DISTINCT i.name AS index_name\n"
+                    + "      , i.type_desc\n"
+                    + "      ,is_unique\n"
+                    + "      ,is_primary_key \n"
+                    + "       FROM sys.indexes AS i\n"
+                    + "INNER JOIN sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
+                    + "inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id \n"
+                    + "inner join sys.objects as o on o.object_id = i.object_id\n"
+                    + "inner join sys.master_files as smf on smf.data_space_id = ds.data_space_id\n"
+                    + "inner join sys.databases as db on db.database_id = smf.database_id\n"
+                    + "INNER JOIN information_schema.tables AS b\n"
+                    + " ON (OBJECT_ID(b.table_name) = i.object_id) \n"
+                    + " AND b.table_type = 'BASE TABLE'\n"
+                    + "     WHERE is_hypothetical = 0 AND i.index_id<> 0\n"
+                    + "     AND i.object_id = OBJECT_ID('dbo.campeonatos')";
 
             //abrir conexao;
             Connection minhaConexao = new Tela_Resumo().getTelaScript().conection;
