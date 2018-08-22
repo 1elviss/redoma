@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import model.bean.IndicesNoPrimary;
+import model.bean.IndicesNaoUtilizados;
 
 /**
  *
@@ -146,22 +147,20 @@ public class Tela_Resumo extends javax.swing.JFrame {
     }
 
     //List<Object> lista ;
-    public List<String> selecionarIndicesNoPrimary() {
+    public List<String> selecionarIndicesNaoUtilizados() {
         Connection con = ConnectionFactory.getConnection();
 
-        String sql = "Select    OBJECT_NAME(i.object_id) As Tabela,\n"
-                + "             i.name As Indice, \n"
-                + "             i.object_id IddoObjetoIndice,\n"
-                + "             fg.name as GrupoDeARQUIVO,\n"
-                + "             i.type_desc as TipoDeIndice,\n"
-                + "             o.type as TipoTabela\n"
-                + "  from sys.indexes as i  \n"
-                + "       inner join sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
-                + "       inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id \n"
-                + "       inner join sys.objects as o on o.object_id = i.object_id\n"
-                + "	  inner join sys.master_files as smf on smf.data_space_id = ds.data_space_id\n"
-                + "	  inner join sys.databases as db on db.database_id = smf.database_id\n"
-                + " where((o.type ='U') and (fg.filegroup_guid IS NULL) and (OBJECT_NAME(i.object_id) <> 'sysdiagrams') and db.database_id = 7)";
+        String sql = "\"SELECT  OBJECT_NAME(i.[object_id]) AS [Table Name] ,\\n\"\n" +
+"                + \"        i.name\\n\"\n" +
+"                + \"FROM    sys.indexes AS i\\n\"\n" +
+"                + \"        INNER JOIN sys.objects AS o ON i.[object_id] = o.[object_id]\\n\"\n" +
+"                + \"WHERE   i.index_id NOT IN ( SELECT  s.index_id\\n\"\n" +
+"                + \"                            FROM    sys.dm_db_index_usage_stats AS s\\n\"\n" +
+"                + \"                            WHERE   s.[object_id] = i.[object_id]\\n\"\n" +
+"                + \"                                    AND i.index_id = s.index_id\\n\"\n" +
+"                + \"                                    AND database_id = DB_ID() )\\n\"\n" +
+"                + \"        AND o.[type] = 'U'\\n\"\n" +
+"                + \"ORDER BY OBJECT_NAME(i.[object_id]) ASC ;\")";
         //abrir conexao;
         //Connection minhaConexao = pegarConexao();
 
@@ -184,11 +183,7 @@ public class Tela_Resumo extends javax.swing.JFrame {
             while (rs.next()) {//enquanto houver próximo;
                 inp.setNomeDaTabela(rs.getString("Tabela"));
                 inp.setNomeDoIndice(rs.getString("Indice"));
-                inp.setIdDoObjeto(rs.getLong("IddoObjetoIndice"));
-                inp.setGrupoDeArquivo(rs.getString("GrupoDeARQUIVO"));
-                inp.setTipoDeIndice(rs.getString("TipoDeIndice"));
-                inp.setTipoDeTabela(rs.getString("TipoTabela"));
-
+               
                 System.out.println(inp.toString());
                 //adicionando o corpo da tabela no array de String
                 listaResultSetString.add(inp.toString());
@@ -331,7 +326,7 @@ public class Tela_Resumo extends javax.swing.JFrame {
             System.out.println("O diretorio já existe em-->" + getDiretorio().getAbsolutePath());
         }
 
-        boolean arquivo = criarArquivoTxt(getDiretorio(), "indicesNoPrimary.txt");
+        boolean arquivo = criarArquivoTxt(getDiretorio(), "indicesNaoUtilizados.txt");
         if (arquivo == true) {
             System.out.println("O arquivo foi criado pela primeira vez");
             System.out.println("O arquivo foi criado em-->" + getArquivo().getAbsolutePath());
@@ -340,10 +335,10 @@ public class Tela_Resumo extends javax.swing.JFrame {
             System.out.println("O arquivo já existe!");
             System.out.println("O arquivo já existe em-->" + getArquivo().getAbsolutePath());
             getArquivo().delete();//deleto para sobrescrever
-            criarArquivoTxt(getDiretorio(), "indicesNoPrimary.txt");
+            criarArquivoTxt(getDiretorio(), "indicesNaoUtilizados.txt");
         }
         //adicionando ao arquivo.txt
-        for (String linha : selecionarIndicesNoPrimary()) {
+        for (String linha : selecionarIndicesNaoUtilizados()) {
             salvarEmTxt(linha, getArquivo());
         }
         System.exit(0);
