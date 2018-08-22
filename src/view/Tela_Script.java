@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 import model.bean.IndicesFillFactor;
 import model.bean.IndicesNaoUtilizados;
 import model.bean.IndicesNoPrimary;
+import model.bean.TabelasHeap;
 import sun.java2d.pipe.LoopPipe;
 
 /**
@@ -393,15 +394,20 @@ public class Tela_Script extends javax.swing.JFrame {
         // Listar todos os índices com Fillfactor menor que X - parâmetro int;
         if (jCheckBoxFillFactor.isSelected()) {
             int parametroFill = Integer.parseInt(jTextField3.getText());
-            String selectFill = "SELECT DB_NAME() AS DBNAME, a.name AS IndexName, \n"
-                    + " a.OrigFillFactor AS Fill_Factor, b.table_name\n"
-                    + "FROM sysindexes AS a\n"
-                    + "INNER JOIN information_schema.tables AS b \n"
-                    + " ON (OBJECT_ID(b.table_name) = a.id) \n"
+            String selectFill = "SELECT DB_NAME() AS DBNAME, i.name AS IndexName, \n"
+                    + " i.fill_factor AS Fill_Factor, b.table_name\n"
+                    + "FROM sys.indexes AS i\n"
+                    + "inner join sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
+                    + "inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id \n"
+                    + "inner join sys.objects as o on o.object_id = i.object_id\n"
+                    + "inner join sys.master_files as smf on smf.data_space_id = ds.data_space_id\n"
+                    + "inner join sys.databases as db on db.database_id = smf.database_id\n"
+                    + "INNER JOIN information_schema.tables AS b\n"
+                    + " ON (OBJECT_ID(b.table_name) = i.object_id) \n"
                     + " AND b.table_type = 'BASE TABLE'\n"
-                    + "WHERE a.OrigFillFactor < " + parametroFill + "\n"
-                    + "ORDER BY a.OrigFillFactor DESC";
-            
+                    + "WHERE i.fill_factor < " + parametroFill + "\n"
+                    + "ORDER BY i.fill_factor DESC";
+
             //abrir conexao;
             Connection minhaConexao = new Tela_Resumo().getTelaScript().conection;
             PreparedStatement stmt = null;
@@ -443,8 +449,56 @@ public class Tela_Script extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jCheckBoxFillFactorActionPerformed
 
-    public void indicesVariantes() {
+    public void tabelasHeap() {
+        if (jCheckBoxTableHeap.isSelected()) {
+            String selectHeap = "SELECT i.name AS index_name\n"
+                    + "                     , i.type_desc\n"
+                    + "                     ,is_unique\n"
+                    + "                     ,is_primary_key \n"
+                    + "                     FROM sys.indexes AS i\n"
+                    + "                     INNER JOIN sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
+                    + "                     WHERE is_hypothetical = 0 AND i.index_id<> 0\n"
+                    + "                     AND i.object_id = OBJECT_ID('dbo.campeonatos')";
 
+            //abrir conexao;
+            Connection minhaConexao = new Tela_Resumo().getTelaScript().conection;
+            PreparedStatement stmt = null;
+            ResultSet rs = null;
+
+            List<TabelasHeap> listaResultSet = new ArrayList<>();
+
+            try {
+                //É preciso percorrer o PreparedStatement
+                /*toda a consulta ta denro do do stmt que e a declaracao ja prepada
+            (Prepared Stamtement)*/
+                //Preparou tudo mas e preciso executar
+                stmt = minhaConexao.prepareStatement(selectHeap);
+                //retorna um resultset o executeQuery()
+                //valores retornados estao em rs
+                rs = stmt.executeQuery();//query porque e consulta 
+                //para percorrer o resultSet
+
+                while (rs.next()) {//enquanto houver próximo;
+                    TabelasHeap th = new TabelasHeap();
+
+                    th.setChavePrimaria(rs.getInt("chavePrimaria"));
+                    th.setChaveUnica(rs.getInt("chaveUnica"));
+                    th.setNomeTabela(rs.getString("nomeTabela"));
+                    th.setTipoCluster(rs.getString("tipoCluster"));
+
+                    listaResultSet.add(th);
+                }
+
+            } catch (SQLException ex) {
+                System.err.println("Erro :" + ex);
+            } finally {
+                try {
+                    minhaConexao.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(Tela_Resumo.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
     }
 
 
@@ -539,54 +593,6 @@ public class Tela_Script extends javax.swing.JFrame {
             }
         });
     }
-
-    public void IndicesFillFactor() {
-        if (jCheckBoxFillFactor.isSelected()) {
-            int parametroFill = Integer.parseInt(jTextField3.getText());
-            String selectFill = "SELECT DB_NAME() AS DBNAME, a.name AS IndexName, \n"
-                    + " a.OrigFillFactor AS Fill_Factor, b.table_name\n"
-                    + "FROM sysindexes AS a\n"
-                    + "INNER JOIN information_schema.tables AS b \n"
-                    + " ON (OBJECT_ID(b.table_name) = a.id) \n"
-                    + " AND b.table_type = 'BASE TABLE'\n"
-                    + "WHERE a.OrigFillFactor < " + parametroFill + "\n"
-                    + "ORDER BY a.OrigFillFactor DESC";
-        }
-    }
-
-    public void indiceNaoUtilizado() {
-        if (jCheckBoxIndiceNaoUtilizado.isSelected()) {
-            // Cristiano: Índices não utilizados
-            String idxNaoUtilizados = "SELECT  OBJECT_NAME(i.[object_id]) AS [Table Name] ,\n"
-                    + "        i.name\n"
-                    + "FROM    sys.indexes AS i\n"
-                    + "        INNER JOIN sys.objects AS o ON i.[object_id] = o.[object_id]\n"
-                    + "WHERE   i.index_id NOT IN ( SELECT  s.index_id\n"
-                    + "                            FROM    sys.dm_db_index_usage_stats AS s\n"
-                    + "                            WHERE   s.[object_id] = i.[object_id]\n"
-                    + "                                    AND i.index_id = s.index_id\n"
-                    + "                                    AND database_id = DB_ID() )\n"
-                    + "        AND o.[type] = 'U'\n"
-                    + "ORDER BY OBJECT_NAME(i.[object_id]) ASC ;";
-        }
-    }
-
-    private void FileGroupPrimary(java.awt.event.ActionEvent evt) {
-        if (checkFileGroupPrimary.isSelected()) {
-            String selectFG = " Select    OBJECT_NAME(i.object_id) As Tabela,\n"
-                    + "i.name As Indice, \n"
-                    + "i.object_id IddoObjetoIndice,\n"
-                    + "fg.name as GrupoDeARQUIVO,\n"
-                    + "i.type_desc as TipoDeIndice,\n"
-                    + "o.type as TipoTabela\n"
-                    + "from sys.indexes as i \n"
-                    + "inner join sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
-                    + "inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id\n"
-                    + "inner join sys.objects as o on o.object_id = i.object_id\n"
-                    + "where (o.type ='U') and (fg.filegroup_guid IS NULL) and (OBJECT_NAME(i.object_id) <> 'sysdiagrams')";
-        }
-    }
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox checkFileGroupPrimary;
