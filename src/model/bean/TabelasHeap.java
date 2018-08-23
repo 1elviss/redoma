@@ -48,6 +48,19 @@ public class TabelasHeap {
         this.chavePrimaria = chavePrimaria;
     }
     
+    public String cabecalho() {
+        String cabecalhoTabela = String.format("|%-20s|%-30s|%-20s|%-20s|\n",
+                "nomeTabela", "tipoCluster", "chaveUnica", "chavePrimaria");
+        return cabecalhoTabela;
+    }
+
+    @Override
+    public String toString() {
+        String corpoTabela = String.format("|%-20s|%-30s|%-20s|%-20s|\n", nomeTabela,
+                tipoCluster, chaveUnica, chavePrimaria);
+        return corpoTabela;
+    }
+    
     
 
 }

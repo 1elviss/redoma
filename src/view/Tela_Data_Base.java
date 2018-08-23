@@ -14,6 +14,10 @@ import java.sql.Connection;
  * @author aldam
  */
 public class Tela_Data_Base extends javax.swing.JFrame {
+      /**
+     * Creates new form Tela_Data_Base
+     */
+    
     public static Connection conection;
     /**
      * Creates new form Tela_Data_Base
@@ -23,11 +27,11 @@ public class Tela_Data_Base extends javax.swing.JFrame {
         initComponents();
     }
     
+
+    public Tela_Data_Base() {
+        initComponents();
+    }
     
-//    public Tela_Data_Base(Tela_Script ts) {
-//        ts = new Tela_Script();
-//        initComponents();
-//    }
     private Tela_Script telaScript;
 
     public Tela_Script getTelaScript() {
@@ -36,10 +40,6 @@ public class Tela_Data_Base extends javax.swing.JFrame {
 
     public void setTelaScript(Tela_Script telaScript) {
         this.telaScript = telaScript;
-    }
-  
-    public Tela_Data_Base() {
-        initComponents();
     }
     
     /**
@@ -74,33 +74,18 @@ public class Tela_Data_Base extends javax.swing.JFrame {
         jLbdsistemico.setText("Banco de Dados Sistêmico");
 
         jCheckBoxMaster.setText("Master");
-        jCheckBoxMaster.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxMasterActionPerformed(evt);
-            }
-        });
 
         jCheckBoxMsdb.setText("Msdb");
 
         jLbdUsuario.setText("Banco de Dados de Usuários");
 
         jCheckBoxFolhaPagamento.setText("Folha de Pagamento");
-        jCheckBoxFolhaPagamento.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxFolhaPagamentoActionPerformed(evt);
-            }
-        });
 
         jCheckBoxAcademico.setText("Acadêmico");
 
         jCheckBoxDWcoportativo.setText("DW Coportativo");
 
         jCheckBoxDataMart.setText("DataMart");
-        jCheckBoxDataMart.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxDataMartActionPerformed(evt);
-            }
-        });
 
         jScrollBar1.setOrientation(javax.swing.JScrollBar.HORIZONTAL);
         jScrollBar1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -121,11 +106,11 @@ public class Tela_Data_Base extends javax.swing.JFrame {
                             .addComponent(jLbdsistemico)
                             .addComponent(jCheckBoxMaster)
                             .addComponent(jLbdUsuario))
-                        .addContainerGap(322, Short.MAX_VALUE))
+                        .addContainerGap(334, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jCheckBoxDataMart)
-                        .addGap(0, 0, Short.MAX_VALUE))))
-            .addComponent(jScrollBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -146,7 +131,7 @@ public class Tela_Data_Base extends javax.swing.JFrame {
                 .addComponent(jCheckBoxDWcoportativo)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jCheckBoxDataMart)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 119, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 115, Short.MAX_VALUE)
                 .addComponent(jScrollBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -194,8 +179,8 @@ public class Tela_Data_Base extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(32, 32, 32)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addComponent(jPanelFuncao, javax.swing.GroupLayout.DEFAULT_SIZE, 41, Short.MAX_VALUE)
                 .addGap(39, 39, 39))
         );
@@ -205,50 +190,29 @@ public class Tela_Data_Base extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jBtAvancarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtAvancarActionPerformed
-        if(getTelaScript() == null){//nao foi ainda para outra tela
+           if(getTelaScript() == null){//nao foi ainda para outra tela
             //cria nova instancia
             //passando esta tela como parametro e conexao
             setTelaScript(new Tela_Script(conection));
             //a tela script agora conhece esta tela caso ela precise voltar
             //guardando o caminho de volta
-            getTelaScript().setTelaDataBase(this);
-            getTelaScript().setVisible(true);
-            //fechar esta janela
-            this.dispose();  
-          }else{
-            //ja passou pela 3 tela e voltou pra essa
+            getTelaScript().setTelaDataBase(this); 
+          }//ja passou pela 3 tela e voltou pra essa
             this.getTelaScript().setVisible(true);
             this.dispose();
-          }
-        
-        
     }//GEN-LAST:event_jBtAvancarActionPerformed
 
     private void jBtCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtCancelarActionPerformed
 
-        int resposta = JOptionPane.showConfirmDialog(null, "Deseja Realmente Sair ?");
+        int resposta = JOptionPane.showConfirmDialog(null, "Deseja Sair Realmente ?");
         if (resposta == JOptionPane.YES_OPTION) {
             System.exit(0);
         }
-
-
     }//GEN-LAST:event_jBtCancelarActionPerformed
 
     private void jBtAjudaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtAjudaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jBtAjudaActionPerformed
-
-    private void jCheckBoxMasterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMasterActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jCheckBoxMasterActionPerformed
-
-    private void jCheckBoxDataMartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxDataMartActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jCheckBoxDataMartActionPerformed
-
-    private void jCheckBoxFolhaPagamentoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxFolhaPagamentoActionPerformed
-
-    }//GEN-LAST:event_jCheckBoxFolhaPagamentoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -280,7 +244,14 @@ public class Tela_Data_Base extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Tela_Data_Base(conection).setVisible(true);
+               // new Tela_Data_Base().setVisible(true);
+                try {
+                    BasesDinamicas frame = new BasesDinamicas();
+                    frame.setVisible(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+               
             }
         });
     }

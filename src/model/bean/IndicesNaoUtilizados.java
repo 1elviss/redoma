@@ -29,5 +29,17 @@ public class IndicesNaoUtilizados {
         this.nomeIndice = nomeIndice;
     }
     
+    public String cabecalho() {
+        String cabecalhoTabela = String.format("|%-20s|%-30s|\n",
+                "nomeTabela", "nomeIndice");
+        return cabecalhoTabela;
+    }
+
+    @Override
+    public String toString() {
+        String corpoTabela = String.format("|%-20s|%-30s|\n", nomeTabela,
+                nomeIndice);
+        return corpoTabela;
+    }
     
 }
