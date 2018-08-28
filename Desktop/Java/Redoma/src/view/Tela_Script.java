@@ -49,12 +49,17 @@ public class Tela_Script extends javax.swing.JFrame {
      */
     public Tela_Script(Connection conection) {
         this.conection = conection;
-        this.selectedBancos = selectedBancos;
-        this.idBanco = selectedBancos.get(0);
+        initComponents();
+    }
+    
+    public Tela_Script() {
         initComponents();
     }
 
     public Tela_Script(Connection novaConexao, List<String> opcoesSelected) {
+        this.conection = conection;
+        this.selectedBancos = selectedBancos;
+        this.idBanco = selectedBancos.get(0);
         initComponents();
     }
 
@@ -394,10 +399,12 @@ public class Tela_Script extends javax.swing.JFrame {
             //guardando o caminho de volta
             getTelaResumo().setTelaScript(this);
         }
+        
         getTelaResumo().setListacomlistaComTodosSelects(getListaComTodosSelects());
         //ja passou pela 3 tela e voltou pra essa
         this.getTelaResumo().setVisible(true);
         this.dispose();
+        
     }//GEN-LAST:event_jBtAvançarActionPerformed
 
     private void jBtCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtCancelarActionPerformed
@@ -410,43 +417,39 @@ public class Tela_Script extends javax.swing.JFrame {
     private void jCBoxFragNaoClusterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBoxFragNaoClusterActionPerformed
         List<String> listaResultSetString = new ArrayList<>();
         //pegando a conexao com o banco    
-        String selectNaoVariantes = "SELECT distinct\n"
-                + "                clmns.column_id AS id,\n"
-                + "                clmns.name AS name,\n"
-                + "                ISNULL(baset.name, N'') AS systemType,\n"
-                + "                ik.type_desc as descricao\n"
-                + "                FROM information_schema.tables,\n"
-                + "                sys.tables AS tbl\n"
-                + "                INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
-                + "                LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1))\n"
-                + "                LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
-                + "                LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
-                + "	         WHERE table_type = 'base table' \n"
-                + "                and ik.type = 1\n"
-                + "                and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
-                + "                ORDER BY\n"
-                + "                id ASC;";
+        int parametroNonClustered = Integer.parseInt(txtIndiceNonClustered.getText());
+        String selectNonClustered = "SELECT object_name(SysBases.object_id) AS nomeTabela ,\n"
+                + "SisIndex.name AS  nomeIndice,\n"
+                + "SysBases.Index_type_desc AS descricaoIndice,\n"
+                + "SysBases.avg_fragmentation_in_percent AS fragmentacao\n"
+                + "FROM sys.dm_db_index_physical_stats(db_id(DB_NAME()), NULL, NULL, NULL , 'DETAILED') SysBases\n"
+                + "JOIN sys.tables SisTabelas WITH (nolock) ON SysBases.object_id = SisTabelas.object_id\n"
+                + "JOIN sys.indexes SisIndex WITH (nolock) ON SysBases.object_id = SisIndex.object_id AND SysBases.index_id = SisIndex.index_id\n"
+                + "WHERE SisTabelas.is_ms_shipped = 0 and index_type_desc = 'NONCLUSTERED INDEX' "
+                + "and SysBases.avg_fragmentation_in_percent >= " + parametroNonClustered + "\n"
+                + "order by SysBases.avg_fragment_size_in_pages desc";
 
-        PreparedStatement stmt = null;
+         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            stmt = conection.prepareStatement(selectNaoVariantes);
+            stmt = conection.prepareStatement(selectNonClustered);
             rs = stmt.executeQuery();
 
-            IndicesClusterNaoVariantes icnv = new IndicesClusterNaoVariantes();
-            listaResultSetString.add(icnv.nomedoSelect());
-            //adicionando o cabeÃ§aho da tabela no array de String posicao get(0)
-            listaResultSetString.add(icnv.cabecalho());
-            System.out.println(icnv.cabecalho());
-            while (rs.next()) {//enquanto houver prÃ³ximo;
-                icnv.setId(rs.getInt("id"));
-                icnv.setName(rs.getString("name"));
-                icnv.setSystemType(rs.getString("systemType"));
-                icnv.setDescricao(rs.getString("descricao"));
+            IndicesNonClustered inc = new IndicesNonClustered();
+            listaResultSetString.add(inc.nomedoSelect());
+            //adicionando o cabeçaho da tabela no array de String posicao get(0)
+            listaResultSetString.add(inc.cabecalho());
+            System.out.println(inc.cabecalho());
+            while (rs.next()) {//enquanto houver próximo;
 
-                System.out.println(icnv.toString());
+                inc.setNomeTabela(rs.getString("nomeTabela"));
+                inc.setNomeIndice(rs.getString("nomeIndice"));
+                inc.setDescricaoIndice(rs.getString("descricaoIndice"));
+                inc.setFragmentacao(rs.getInt("fragmentacao"));
+
+                System.out.println(inc.toString());
                 //adicionando o corpo da tabela no array de String
-                listaResultSetString.add(icnv.toString());
+                listaResultSetString.add(inc.toString());
             }
         } catch (SQLException ex) {
             System.err.println("Erro :" + ex);
@@ -460,39 +463,35 @@ public class Tela_Script extends javax.swing.JFrame {
     private void jCBoxFragClusterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBoxFragClusterActionPerformed
         List<String> listaResultSetString = new ArrayList<>();
         //pegando a conexao com o banco    
-        String selectNaoVariantes = "SELECT distinct\n"
-                + "                clmns.column_id AS id,\n"
-                + "                clmns.name AS name,\n"
-                + "                ISNULL(baset.name, N'') AS systemType,\n"
-                + "                ik.type_desc as descricao\n"
-                + "                FROM information_schema.tables,\n"
-                + "                sys.tables AS tbl\n"
-                + "                INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
-                + "                LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1))\n"
-                + "                LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
-                + "                LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
-                + "	           WHERE table_type = 'base table' \n"
-                + "                and ik.type = 1\n"
-                + "                and SisTabelas.is_ms_shipped =  > 1 and index_type_desc = 'CLUSTERED INDEX'\n"
-                + "                and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
-                + "                ORDER BY\n"
-                + "                id ASC;";
+        int parametroClustered = Integer.parseInt(txtIndiceClustered.getText());
+        String selectClustered = "SELECT object_name(SysBases.object_id) AS nomeTabela ,\n"
+                + "SisIndex.name AS  nomeIndice,\n"
+                + "SysBases.Index_type_desc AS descricaoIndice,\n"
+                + "SysBases.avg_fragmentation_in_percent AS fragmentacao\n"
+                + "FROM sys.dm_db_index_physical_stats(db_id(DB_NAME()), NULL, NULL, NULL , 'DETAILED') SysBases\n"
+                + "JOIN sys.tables SisTabelas WITH (nolock) ON SysBases.object_id = SisTabelas.object_id\n"
+                + "JOIN sys.indexes SisIndex WITH (nolock) ON SysBases.object_id = SisIndex.object_id AND SysBases.index_id = SisIndex.index_id\n"
+                + "WHERE SisTabelas.is_ms_shipped = 0 and index_type_desc = 'CLUSTERED INDEX' "
+                + "and SysBases.avg_fragmentation_in_percent >= " + parametroClustered + "\n"
+                + "order by SysBases.avg_fragment_size_in_pages desc";
+
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            stmt = conection.prepareStatement(selectNaoVariantes);
+            stmt = conection.prepareStatement(selectClustered);
             rs = stmt.executeQuery();
 
-            IndicesCluster ic = new IndicesCluster();
+            IndicesClustered ic = new IndicesClustered();
             listaResultSetString.add(ic.nomedoSelect());
-            //adicionando o cabeÃ§aho da tabela no array de String posicao get(0)
+            //adicionando o cabeçaho da tabela no array de String posicao get(0)
             listaResultSetString.add(ic.cabecalho());
             System.out.println(ic.cabecalho());
-            while (rs.next()) {//enquanto houver prÃ³ximo;
-                ic.setId(rs.getInt("id"));
-                ic.setName(rs.getString("name"));
-                ic.setSystemType(rs.getString("systemType"));
-                ic.setDescricao(rs.getString("descricao"));
+            while (rs.next()) {//enquanto houver próximo;
+
+                ic.setNomeTabela(rs.getString("nomeTabela"));
+                ic.setNomeIndice(rs.getString("nomeIndice"));
+                ic.setDescricaoIndice(rs.getString("descricaoIndice"));
+                ic.setFragmentacao(rs.getInt("fragmentacao"));
 
                 System.out.println(ic.toString());
                 //adicionando o corpo da tabela no array de String
@@ -510,51 +509,55 @@ public class Tela_Script extends javax.swing.JFrame {
     private void jCBoxFillFactorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBoxFillFactorActionPerformed
         List<String> listaResultSetString = new ArrayList<>();
         //pegando a conexao com o banco    
-        if (jCBoxFillFactor.isSelected()) {
-            int parametroFill = Integer.parseInt(jTextFillFactor.getText());
-            String selectFill = "SELECT DB_NAME() AS DBNAME, a.name AS IndexName, \n"
-                    + " a.OrigFillFactor AS Fill_Factor, b.table_name\n"
-                    + "FROM sysindexes AS a\n"
-                    + "INNER JOIN information_schema.tables AS b \n"
-                    + " ON (OBJECT_ID(b.table_name) = a.id) \n"
-                    + " AND b.table_type = 'BASE TABLE'\n"
-                    + "WHERE a.OrigFillFactor < " + parametroFill + "\n"
-                    + "ORDER BY a.OrigFillFactor DESC";
+        int parametroFill = Integer.parseInt(txtFillFactor.getText());
+        String selectFill = "SELECT DB_NAME() AS nomeDoBanco, i.name AS nomeDoIndice, \n"
+                + "                 i.fill_factor AS fill_Factor, b.table_name as nomeDaTabela\n"
+                + "               FROM sys.indexes AS i\n"
+                + "                inner join sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
+                + "                inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id\n"
+                + "                inner join sys.objects as o on o.object_id = i.object_id\n"
+                + "                inner join sys.master_files as smf on smf.data_space_id = ds.data_space_id\n"
+                + "                inner join sys.databases as db on db.database_id = smf.database_id\n"
+                + "                INNER JOIN information_schema.tables AS b\n"
+                + "                 ON (OBJECT_ID(b.table_name) = i.object_id) \n"
+                + "                 AND b.table_type = 'BASE TABLE'\n"
+                + "                WHERE i.fill_factor < " + parametroFill + "\n"
+                + "                ORDER BY i.fill_factor DESC";
 
-            PreparedStatement stmt = null;
-            ResultSet rs = null;
-            try {
-                stmt = conection.prepareStatement(selectFill);
-                rs = stmt.executeQuery();
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = conection.prepareStatement(selectFill);
+            rs = stmt.executeQuery();
 
-                IndicesFillFactor iff = new IndicesFillFactor();
-                listaResultSetString.add(iff.nomedoSelect());
-                //adicionando o cabeÃ§aho da tabela no array de String posicao get(0)
-                listaResultSetString.add(iff.cabecalho());
-                System.out.println(iff.cabecalho());
-                while (rs.next()) {//enquanto houver prÃ³ximo;
+            IndicesFillFactor iff = new IndicesFillFactor();
+            listaResultSetString.add(iff.nomedoSelect());
+            //adicionando o cabeçaho da tabela no array de String posicao get(0)
+            listaResultSetString.add(iff.cabecalho());
+            System.out.println(iff.cabecalho());
+            while (rs.next()) {//enquanto houver próximo;
 
-                    iff.setNomeDoBanco(rs.getString("nomeDoBanco"));
-                    iff.setNomeDoIndice(rs.getString("nomeDoIndice"));
-                    iff.setFillFactor(rs.getInt("fill_Factor"));
-                    iff.setNomeDaTabela(rs.getString("nomeDaTabela"));
+                iff.setNomeDoBanco(rs.getString("nomeDoBanco"));
+                iff.setNomeDoIndice(rs.getString("nomeDoIndice"));
+                iff.setFillFactor(rs.getInt("fill_Factor"));
+                iff.setNomeDaTabela(rs.getString("nomeDaTabela"));
 
-                    System.out.println(iff.toString());
-                    //adicionando o corpo da tabela no array de String
-                    listaResultSetString.add(iff.toString());
-                }
-            } catch (SQLException ex) {
-                System.err.println("Erro :" + ex);
-            } finally {
-                ConnectionFactory.fecharStmtERs(stmt, rs);
+                System.out.println(iff.toString());
+                //adicionando o corpo da tabela no array de String
+                listaResultSetString.add(iff.toString());
             }
-            //adicionando o resultado do select ao listaComTodosSelects
-            getListaComTodosSelects().add(listaResultSetString);
+        } catch (SQLException ex) {
+            System.err.println("Erro :" + ex);
+        } finally {
+            ConnectionFactory.fecharStmtERs(stmt, rs);
+        }
+        //adicionando o resultado do select ao listaComTodosSelects
+        getListaComTodosSelects().add(listaResultSetString);
         }
     }//GEN-LAST:event_jCBoxFillFactorActionPerformed
 
     private void jCBoxIndiceNaoUtilizadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBoxIndiceNaoUtilizadoActionPerformed
-        List<String> listaResultSetString = new ArrayList<>();
+         List<String> listaResultSetString = new ArrayList<>();
         //pegando a conexao com o banco    
         String selectidxNaoU = "SELECT  OBJECT_NAME(i.[object_id]) AS nomeDaTabela ,\n"
                 + "                     i.name as nomeDoIndice\n"
@@ -577,10 +580,10 @@ public class Tela_Script extends javax.swing.JFrame {
             IndicesNaoUtilizados idxNaoUtilizados = new IndicesNaoUtilizados();
 
             listaResultSetString.add(idxNaoUtilizados.nomedoSelect());
-            //adicionando o cabeÃ§aho da tabela no array de String posicao get(0)
+            //adicionando o cabeçaho da tabela no array de String posicao get(0)
             listaResultSetString.add(idxNaoUtilizados.cabecalho());
             System.out.println(idxNaoUtilizados.cabecalho());
-            while (rs.next()) {//enquanto houver prÃ³ximo;
+            while (rs.next()) {//enquanto houver próximo;
                 idxNaoUtilizados.setNomeDaTabela(rs.getString("nomeDaTabela"));
                 idxNaoUtilizados.setNomeDoIndice(rs.getString("nomeDoIndice"));
                 System.out.println(idxNaoUtilizados.toString());
@@ -643,23 +646,101 @@ public class Tela_Script extends javax.swing.JFrame {
 
     private void jCBoxGroupPrymaryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBoxGroupPrymaryActionPerformed
         List<String> listaResultSetString = new ArrayList<>();
-        if (jCBoxGroupPrymary.isSelected()) {
-            String selectFG = " Select    OBJECT_NAME(i.object_id) As Tabela,\n"
-                    + "i.name As Indice, \n"
-                    + "i.object_id IddoObjetoIndice,\n"
-                    + "fg.name as GrupoDeARQUIVO,\n"
-                    + "i.type_desc as TipoDeIndice,\n"
-                    + "o.type as TipoTabela\n"
-                    + "from sys.indexes as i \n"
-                    + "inner join sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
-                    + "inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id\n"
-                    + "inner join sys.objects as o on o.object_id = i.object_id\n"
-                    + "where (o.type ='U') and (fg.filegroup_guid IS NULL) and (OBJECT_NAME(i.object_id) <> 'sysdiagrams')";
+        //pegando a conexao com o banco    
+        String selectNoPrimary = "Select distinct OBJECT_NAME(i.object_id) As Tabela,\n"
+                + "             i.name As Indice, \n"
+                + "             i.object_id IddoObjetoIndice,\n"
+                + "             fg.name as GrupoDeARQUIVO,\n"
+                + "             i.type_desc as TipoDeIndice,\n"
+                + "             o.type as TipoTabela\n"
+                + "  from sys.indexes as i  \n"
+                + "       inner join sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
+                + "       inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id \n"
+                + "       inner join sys.objects as o on o.object_id = i.object_id\n"
+                + " where((o.type ='U') and (fg.filegroup_guid IS NULL) and (OBJECT_NAME(i.object_id) <> 'sysdiagrams'))";
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            stmt = conection.prepareStatement(selectNoPrimary);
+            rs = stmt.executeQuery();
+
+            IndicesNoPrimary inp = new IndicesNoPrimary();
+            //adicionando o que faz o select, ou seja seu script
+            listaResultSetString.add(inp.nomedoSelect());
+            //adicionando o cabeçaho da tabela no array de String posicao get(0)
+            listaResultSetString.add(inp.cabecalho());
+            System.out.println(inp.cabecalho());
+            while (rs.next()) {//enquanto houver próximo;
+                inp.setNomeDaTabela(rs.getString("Tabela"));
+                inp.setNomeDoIndice(rs.getString("Indice"));
+                inp.setIdDoObjeto(rs.getLong("IddoObjetoIndice"));
+                inp.setGrupoDeArquivo(rs.getString("GrupoDeARQUIVO"));
+                inp.setTipoDeIndice(rs.getString("TipoDeIndice"));
+                inp.setTipoDeTabela(rs.getString("TipoTabela"));
+
+                System.out.println(inp.toString());
+                //adicionando o corpo da tabela no array de String
+                listaResultSetString.add(inp.toString());
+            }
+        } catch (SQLException ex) {
+            System.err.println("Erro :" + ex);
+        } finally {
+            ConnectionFactory.fecharStmtERs(stmt, rs);
         }
+        //adicionando o resultado do select ao listaComTodosSelects
+        getListaComTodosSelects().add(listaResultSetString);
     }//GEN-LAST:event_jCBoxGroupPrymaryActionPerformed
 
     private void jCBoxIndexClusterTipoVariavelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBoxIndexClusterTipoVariavelActionPerformed
-        // TODO add your handling code here:
+       List<String> listaResultSetString = new ArrayList<>();
+        //pegando a conexao com o banco    
+        String selectVariantes = "SELECT distinct\n"
+                + "                clmns.column_id AS id,\n"
+                + "                clmns.name AS name,\n"
+                + "                ISNULL(baset.name, N'') AS systemType,\n"
+                + "                ik.type_desc as descricao\n"
+                + "                FROM information_schema.tables,\n"
+                + "                sys.tables AS tbl\n"
+                + "                INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
+                + "                LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1))\n"
+                + "                LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
+                + "                LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
+                + "	         WHERE table_type = 'base table' \n"
+                + "                and ik.type = 1\n"
+                + "                and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
+                + "                ORDER BY\n"
+                + "                id ASC;";
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = conection.prepareStatement(selectVariantes);
+            rs = stmt.executeQuery();
+
+            IndicesClusterVariantes icv = new IndicesClusterVariantes();
+            listaResultSetString.add(icv.nomedoSelect());
+            //adicionando o cabeçaho da tabela no array de String posicao get(0)
+            listaResultSetString.add(icv.cabecalho());
+            System.out.println(icv.cabecalho());
+            while (rs.next()) {//enquanto houver próximo;
+                icv.setId(rs.getInt("id"));
+                icv.setName(rs.getString("name"));
+                icv.setSystemType(rs.getString("systemType"));
+                icv.setDescricao(rs.getString("descricao"));
+
+                System.out.println(icv.toString());
+                //adicionando o corpo da tabela no array de String
+                listaResultSetString.add(icv.toString());
+            }
+        } catch (SQLException ex) {
+            System.err.println("Erro :" + ex);
+        } finally {
+            ConnectionFactory.fecharStmtERs(stmt, rs);
+        }
+        //adicionando o resultado do select ao listaComTodosSelects
+        getListaComTodosSelects().add(listaResultSetString);
     }//GEN-LAST:event_jCBoxIndexClusterTipoVariavelActionPerformed
 
     private void jCBoxTableHeapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBoxTableHeapActionPerformed
@@ -668,8 +749,8 @@ public class Tela_Script extends javax.swing.JFrame {
         String selectHeap = "SELECT DISTINCT i.name as  NomeIndice\n"
                 + "                     , i.type_desc as Descricao\n"
                 + "                     ,is_unique as chaveUnica\n"
-                + "                   ,is_primary_key as chavePrimaria\n"
-                + "                     FROM sys.indexes AS i\n"
+                + "                     ,is_primary_key as chavePrimaria\n"
+                + "         FROM sys.indexes AS i\n"
                 + "                INNER JOIN sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
                 + "                inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id \n"
                 + "                inner join sys.objects as o on o.object_id = i.object_id\n"
@@ -677,8 +758,8 @@ public class Tela_Script extends javax.swing.JFrame {
                 + "                inner join sys.databases as db on db.database_id = smf.database_id\n"
                 + "                INNER JOIN information_schema.tables AS b\n"
                 + "                 ON (OBJECT_ID(b.table_name) = i.object_id) \n"
-                + "               AND b.table_type = 'BASE TABLE'\n"
-                + "                WHERE is_hypothetical = 0 AND i.index_id<> 0";
+                + "                 AND b.table_type = 'BASE TABLE'\n"
+                + "       WHERE is_hypothetical = 0 AND i.index_id<> 0";
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
