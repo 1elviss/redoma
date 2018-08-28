@@ -1,19 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package bean;
 
-/**
- *
- * @author aldam
- */
 public class IndicesFillFactor {
     private String nomeDoBanco;
-    private String nomeIndice;
+    private String nomeDoIndice;
     private int fillFactor;
-    private String nomeTabela;
+    private String nomeDaTabela;
 
     public String getNomeDoBanco() {
         return nomeDoBanco;
@@ -23,12 +14,12 @@ public class IndicesFillFactor {
         this.nomeDoBanco = nomeDoBanco;
     }
 
-    public String getNomeIndice() {
-        return nomeIndice;
+    public String getNomeDoIndice() {
+        return nomeDoIndice;
     }
 
-    public void setNomeIndice(String nomeIndice) {
-        this.nomeIndice = nomeIndice;
+    public void setNomeDoIndice(String nomeDoIndice) {
+        this.nomeDoIndice = nomeDoIndice;
     }
 
     public int getFillFactor() {
@@ -39,11 +30,33 @@ public class IndicesFillFactor {
         this.fillFactor = fillFactor;
     }
 
-    public String getNomeTabela() {
-        return nomeTabela;
+    public String getNomeDaTabela() {
+        return nomeDaTabela;
     }
 
-    public void setNomeTabela(String nomeTabela) {
-        this.nomeTabela = nomeTabela;
+    public void setNomeDaTabela(String nomeDaTabela) {
+        this.nomeDaTabela = nomeDaTabela;
     }
+    
+     public String nomedoSelect(){
+        String nomedoSelect = String.format("***Índices com Fill Factor***%n");
+        return nomedoSelect;
+    }
+    
+    public String cabecalho() {
+        String cabecalhoTabela = String.format("|%-20s|%-30s|%-20s|%-20s|\n",
+                "nomeDoBanco", "nomeDoIndice", "fillFactor", "nomeDaTabela");
+        return cabecalhoTabela;
+    }
+
+    @Override
+    public String toString() {
+        String corpoTabela = String.format("|%-20s|%-30s|%-20s|%-20s|\n", nomeDoBanco,
+                nomeDoIndice, fillFactor, nomeDaTabela);
+        return corpoTabela;
+    }
+    
+    
+    
+    
 }

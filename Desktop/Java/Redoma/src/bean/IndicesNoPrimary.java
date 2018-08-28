@@ -1,16 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package bean;
 
-/**
- *
- * @author aldam
- */
 public class IndicesNoPrimary {
-
     private String nomeDaTabela;
     private String nomeDoIndice;
     private long idDoObjeto;
@@ -65,5 +56,21 @@ public class IndicesNoPrimary {
     public void setTipoDeTabela(String tipoDeTabela) {
         this.tipoDeTabela = tipoDeTabela;
     }
+    
+    public String nomedoSelect(){
+        String nomedoSelect = String.format("***Índices Localizados no FileGroup Primary***%n");
+        return nomedoSelect;
+    }
+    
+    public String cabecalho(){
+        String cabecalhoTabela = String.format("|%-20s|%-30s|%-20s|%-20s|%-20s|%-20s|\n", "nomeDaTabela","nomeDoIndice","idDoObjeto","grupoDeArquivo","tipoDeIndice","tipoDeTabela");
+        return cabecalhoTabela;
+    }
 
+    @Override
+    public String toString() {
+        String corpoTabela = String.format("|%-20s|%-30s|%-20s|%-20s|%-20s|%-20s|\n", nomeDaTabela, nomeDoIndice, idDoObjeto, grupoDeArquivo, tipoDeIndice, tipoDeTabela);
+        return corpoTabela;
+    }
+    
 }

@@ -7,27 +7,45 @@ package bean;
 
 /**
  *
- * @author aldam
+ * @author elvis
  */
 public class IndicesNaoUtilizados {
 
-    private String nomeTabela;
-    private String nomeIndice;
+    private String nomeDaTabela;
+    private String nomeDoIndice;
 
-    public String getNomeTabela() {
-        return nomeTabela;
+    public String getNomeDaTabela() {
+        return nomeDaTabela;
     }
 
-    public void setNomeTabela(String nomeTabela) {
-        this.nomeTabela = nomeTabela;
+    public void setNomeDaTabela(String nomeDaTabela) {
+        this.nomeDaTabela = nomeDaTabela;
     }
 
-    public String getNomeIndice() {
-        return nomeIndice;
+    public String getNomeDoIndice() {
+        return nomeDoIndice;
     }
 
-    public void setNomeIndice(String nomeIndice) {
-        this.nomeIndice = nomeIndice;
+    public void setNomeDoIndice(String nomeDoIndice) {
+        this.nomeDoIndice = nomeDoIndice;
+    }
+    
+    public String nomedoSelect() {
+        String nomedoSelect = String.format("***Índices Não Utilizados***%n");
+        return nomedoSelect;
+    }
+
+    public String cabecalho() {
+        String cabecalhoTabela = String.format("|%-20s|%-30s|\n",
+                "nomeDaTabela", "nomeDoIndice");
+        return cabecalhoTabela;
+    }
+
+    @Override
+    public String toString() {
+        String corpoTabela = String.format("|%-20s|%-30s|\n", nomeDaTabela,
+                nomeDoIndice);
+        return corpoTabela;
     }
 
 }
