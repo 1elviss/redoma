@@ -747,9 +747,9 @@ public class Tela_Script extends javax.swing.JFrame {
         List<String> listaResultSetString = new ArrayList<>();
         //pegando a conexao com o banco    
         String selectHeap = "SELECT DISTINCT i.name as  NomeIndice\n"
-                + "                     , i.type_desc as Descricao\n"
-                + "                     ,is_unique as chaveUnica\n"
-                + "                     ,is_primary_key as chavePrimaria\n"
+                + "                        , i.type_desc as Descricao\n"
+                + "                        , is_unique as chaveUnica\n"
+                + "                        , is_primary_key as chavePrimaria\n"
                 + "         FROM sys.indexes AS i\n"
                 + "                INNER JOIN sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
                 + "                inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id \n"
