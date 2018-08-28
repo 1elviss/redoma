@@ -1,62 +1,25 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package view;
 
-import connection.ConnectionFactory;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import util.ConnectionFactory;
 
 /**
  *
  * @author aldam
  */
 public class Tela_Login_Principal extends javax.swing.JFrame {
-     private Connection con;
+    private Connection con;
     /**
-     * Creates new form telaLogin
+     * Creates new form Tela_Login_Principal
      */
-    private String nomeServidor;
-    private String usuario;
-    //mudar para password
-    private char[] senha;
-
-    public Connection getConnection() {
-        return con;
-    }
-    
-    public String getNomeServidor() {
-        return nomeServidor;
-    }
-
-    public void setNomeServidor(String nomeServidor) {
-        this.nomeServidor = nomeServidor;
-    }
-
-    public String getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(String usuario) {
-        this.usuario = usuario;
-    }
-
-    public char[] getSenha() {
-        return senha;
-    }
-
-    public void setSenha(char[] senha) {
-        this.senha = senha;
-    }
-    
     public Tela_Login_Principal() {
         initComponents();
+    
     }
 
     /**
@@ -68,48 +31,106 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanelPrincipal = new javax.swing.JPanel();
+        jPanel1 = new javax.swing.JPanel();
         jBtCredito = new javax.swing.JButton();
-        jLsimblo = new javax.swing.JLabel();
-        jLNomeServidor = new javax.swing.JLabel();
+        jLnomeDoServidor = new javax.swing.JLabel();
         jLautenticacao = new javax.swing.JLabel();
-        jLnomUsuario = new javax.swing.JLabel();
+        jLnomeDOusuario = new javax.swing.JLabel();
         jLsenha = new javax.swing.JLabel();
-        jTextFieldNomServidor = new javax.swing.JTextField();
-        jComboBoxAutenticar = new javax.swing.JComboBox<>();
-        jTextFieldNomUsuario = new javax.swing.JTextField();
-        jPasswordFieldSenha = new javax.swing.JPasswordField();
-        jPanelFuncao = new javax.swing.JPanel();
+        jTextFnomeDOservidor = new javax.swing.JTextField();
+        jCBoxAutenticacao = new javax.swing.JComboBox<>();
+        jTextFnomeDEusuario = new javax.swing.JTextField();
+        jPasswordFsenha = new javax.swing.JPasswordField();
+        jLabel1 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
         jBtConectar = new javax.swing.JButton();
         jBtSair = new javax.swing.JButton();
         jBtAjuda = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("REDOMA");
-        setName("Gerenciador de dados"); // NOI18N
 
-        jPanelPrincipal.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("REDOMA"));
 
-        jBtCredito.setText("Créditos");
-        jBtCredito.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                jBtCreditoMousePressed(evt);
+        jBtCredito.setText("Crédito");
+        jBtCredito.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBtCreditoActionPerformed(evt);
             }
         });
 
-        jLsimblo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/download.jpg"))); // NOI18N
+        jLnomeDoServidor.setText("Nome do Servidor:");
 
-        jLNomeServidor.setText("Nome do Servidor: ");
+        jLautenticacao.setText("Autenticação:");
 
-        jLautenticacao.setText("Autenticação: ");
-
-        jLnomUsuario.setText("Nome do Usuário:");
+        jLnomeDOusuario.setText("Nome do Usuário:");
 
         jLsenha.setText("Senha:");
 
-        jComboBoxAutenticar.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Autenticação do SQL Server" }));
+        jCBoxAutenticacao.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Autenticação do SQLSERVER" }));
 
-        jPanelFuncao.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/download.jpg"))); // NOI18N
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(61, 61, 61)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLautenticacao)
+                            .addComponent(jLnomeDoServidor))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jCBoxAutenticacao, 0, 263, Short.MAX_VALUE)
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                    .addComponent(jLsenha)
+                                    .addGap(24, 24, 24)
+                                    .addComponent(jPasswordFsenha, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jTextFnomeDOservidor))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLnomeDOusuario)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jTextFnomeDEusuario, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jBtCredito, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(20, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jBtCredito, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 96, Short.MAX_VALUE)
+                        .addComponent(jTextFnomeDOservidor, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(45, 45, 45)
+                        .addComponent(jLnomeDoServidor)
+                        .addGap(18, 18, Short.MAX_VALUE)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jCBoxAutenticacao, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLautenticacao))
+                .addGap(24, 24, 24)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextFnomeDEusuario, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLnomeDOusuario))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jPasswordFsenha, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLsenha))
+                .addGap(42, 42, 42))
+        );
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jBtConectar.setText("Conectar");
         jBtConectar.addActionListener(new java.awt.event.ActionListener() {
@@ -117,7 +138,6 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
                 jBtConectarActionPerformed(evt);
             }
         });
-        jPanelFuncao.add(jBtConectar);
 
         jBtSair.setText("Sair");
         jBtSair.addActionListener(new java.awt.event.ActionListener() {
@@ -125,7 +145,6 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
                 jBtSairActionPerformed(evt);
             }
         });
-        jPanelFuncao.add(jBtSair);
 
         jBtAjuda.setText("Ajuda");
         jBtAjuda.addActionListener(new java.awt.event.ActionListener() {
@@ -133,64 +152,29 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
                 jBtAjudaActionPerformed(evt);
             }
         });
-        jPanelFuncao.add(jBtAjuda);
 
-        javax.swing.GroupLayout jPanelPrincipalLayout = new javax.swing.GroupLayout(jPanelPrincipal);
-        jPanelPrincipal.setLayout(jPanelPrincipalLayout);
-        jPanelPrincipalLayout.setHorizontalGroup(
-            jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelPrincipalLayout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addGroup(jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanelPrincipalLayout.createSequentialGroup()
-                        .addComponent(jLsimblo)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jBtCredito))
-                    .addGroup(jPanelPrincipalLayout.createSequentialGroup()
-                        .addGroup(jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLNomeServidor)
-                            .addComponent(jLautenticacao))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jComboBoxAutenticar, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextFieldNomServidor, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanelPrincipalLayout.createSequentialGroup()
-                        .addGap(32, 32, 32)
-                        .addGroup(jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLnomUsuario)
-                            .addComponent(jLsenha))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jPanelFuncao, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
-                            .addComponent(jTextFieldNomUsuario)
-                            .addComponent(jPasswordFieldSenha))))
-                .addContainerGap())
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(50, 50, 50)
+                .addComponent(jBtConectar, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(30, 30, 30)
+                .addComponent(jBtSair, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(30, 30, 30)
+                .addComponent(jBtAjuda, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        jPanelPrincipalLayout.setVerticalGroup(
-            jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelPrincipalLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLsimblo)
-                    .addComponent(jBtCredito))
-                .addGap(25, 25, 25)
-                .addGroup(jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextFieldNomServidor, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLNomeServidor))
-                .addGap(18, 18, 18)
-                .addGroup(jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLautenticacao)
-                    .addComponent(jComboBoxAutenticar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(19, 19, 19)
-                .addGroup(jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextFieldNomUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLnomUsuario))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLsenha)
-                    .addComponent(jPasswordFieldSenha, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, Short.MAX_VALUE)
-                .addComponent(jPanelFuncao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jBtAjuda, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jBtConectar, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jBtSair, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
 
@@ -198,63 +182,61 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanelPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanelPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jBtConectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtConectarActionPerformed
-        this.setNomeServidor(jTextFieldNomServidor.getText());
-        this.setUsuario(jTextFieldNomUsuario.getText());
-        this.setSenha(jPasswordFieldSenha.getPassword());
+    private void jBtCreditoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtCreditoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jBtCreditoActionPerformed
 
-        String url = "jdbc:sqlserver://" + this.getNomeServidor()
-                + ";user=" + this.getUsuario() + ";password=" + new String(this.getSenha()) + ";";
-        try {
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            con = DriverManager.getConnection(url);
-            //passando as informações da conexao
-            Tela_Data_Base tdb = new Tela_Data_Base(getConnection());
+    private void jBtConectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtConectarActionPerformed
+        ConnectionFactory fabrica = new ConnectionFactory();
+        con = fabrica.getConnection(jTextFnomeDOservidor.getText(), jTextFnomeDEusuario.getText(), new String(jPasswordFsenha.getPassword()));
+
+        if (con != null) {
+            BasesDinamicas tdb = new BasesDinamicas(con);
             tdb.setVisible(true);
             this.dispose();
-        } catch (ClassNotFoundException | SQLException e) {
-            JOptionPane.showMessageDialog(null, "Usuario ou senha incorretos !");
-            e.printStackTrace();
         }
     }//GEN-LAST:event_jBtConectarActionPerformed
 
     private void jBtSairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtSairActionPerformed
-        int resposta = JOptionPane.showConfirmDialog(null, "Deseja Sair Realmente ?");
+       int resposta = JOptionPane.showConfirmDialog(null, "Deseja Sair Realmente ?");
         if ( con !=null){
             try {
                 con.close();
-            } catch (SQLException ex) {//erro ao fechar a conexão 
+            } catch (SQLException ex) {
+                //erro ao fechar a conexão 
                 Logger.getLogger(Tela_Login_Principal.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         if (resposta == JOptionPane.YES_OPTION) {           
             System.exit(0);
-        }    
+        }
     }//GEN-LAST:event_jBtSairActionPerformed
 
     private void jBtAjudaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtAjudaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jBtAjudaActionPerformed
-
-    private void jBtCreditoMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jBtCreditoMousePressed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jBtCreditoMousePressed
 
     /**
      * @param args the command line arguments
@@ -282,9 +264,6 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(Tela_Login_Principal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -299,16 +278,16 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
     private javax.swing.JButton jBtConectar;
     private javax.swing.JButton jBtCredito;
     private javax.swing.JButton jBtSair;
-    private javax.swing.JComboBox<String> jComboBoxAutenticar;
-    private javax.swing.JLabel jLNomeServidor;
+    private javax.swing.JComboBox<String> jCBoxAutenticacao;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLautenticacao;
-    private javax.swing.JLabel jLnomUsuario;
+    private javax.swing.JLabel jLnomeDOusuario;
+    private javax.swing.JLabel jLnomeDoServidor;
     private javax.swing.JLabel jLsenha;
-    private javax.swing.JLabel jLsimblo;
-    private javax.swing.JPanel jPanelFuncao;
-    private javax.swing.JPanel jPanelPrincipal;
-    private javax.swing.JPasswordField jPasswordFieldSenha;
-    private javax.swing.JTextField jTextFieldNomServidor;
-    private javax.swing.JTextField jTextFieldNomUsuario;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPasswordField jPasswordFsenha;
+    private javax.swing.JTextField jTextFnomeDEusuario;
+    private javax.swing.JTextField jTextFnomeDOservidor;
     // End of variables declaration//GEN-END:variables
 }

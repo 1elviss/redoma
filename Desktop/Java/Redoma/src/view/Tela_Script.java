@@ -11,11 +11,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import bean.IndicesFillFactor;
+import bean.IndicesClusterNaoVariantes;
+import bean.IndicesCluster;
 import bean.IndicesNaoUtilizados;
+import bean.MaioresIndices;
+import bean.IndicesFillFactor;
+import bean.TabelasHeap;
+import util.ConnectionFactory;
 
 /**
  *
@@ -24,28 +27,39 @@ import bean.IndicesNaoUtilizados;
 public class Tela_Script extends javax.swing.JFrame {
 
     public static Connection conection;
+    public static List<String> selectedBancos;
+    private List<Object> listaComTodosSelects = new ArrayList<>();
+
+    public List<Object> getListaComTodosSelects() {
+        return listaComTodosSelects;
+    }
+
+    public void setListaComTodosSelects(List<Object> listaComTodosSelects) {
+        this.listaComTodosSelects = listaComTodosSelects;
+    }
+
+    private String idBanco;
+
+    private String getIdBanco() {
+        return idBanco;
+    }
+
     /**
      * Creates new form Tela_Data_Base
      */
     public Tela_Script(Connection conection) {
         this.conection = conection;
+        this.selectedBancos = selectedBancos;
+        this.idBanco = selectedBancos.get(0);
         initComponents();
     }
 
-    public Tela_Script() {
+    public Tela_Script(Connection novaConexao, List<String> opcoesSelected) {
         initComponents();
     }
-//    public Tela_Script(Tela_Data_Base tdb) {
-//        this.tdb = tdb;
-//        initComponents();
-//   }
 
     private Tela_Data_Base telaDataBase;
     private Tela_Resumo telaResumo;
-
-    public Tela_Script(Connection con, List<String> opcoesSelected) {
-        
-    }
 
     public Tela_Data_Base getTelaDataBase() {
         return telaDataBase;
@@ -74,26 +88,25 @@ public class Tela_Script extends javax.swing.JFrame {
         bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
         jPanel1 = new javax.swing.JPanel();
+        jScrollBar1 = new javax.swing.JScrollBar();
         jLabelOpcaoPermissao = new javax.swing.JLabel();
+        jLabelOpcaoIndex = new javax.swing.JLabel();
         jCheckBoxPermissaoSA = new javax.swing.JCheckBox();
         jCheckBoxPermisssaoEscrita = new javax.swing.JCheckBox();
-        jLabelOpcaoIndex = new javax.swing.JLabel();
-        jCheckBoxABC = new javax.swing.JCheckBox();
-        jCheckBoxFragNaoCluster = new javax.swing.JCheckBox();
-        jCheckBoxFragCluster = new javax.swing.JCheckBox();
-        jScrollBar1 = new javax.swing.JScrollBar();
-        jCheckBoxFillFactor = new javax.swing.JCheckBox();
-        jCheckBoxIndiceNaoUtilizado = new javax.swing.JCheckBox();
-        jCheckBoxMaiorIndice = new javax.swing.JCheckBox();
-        jSlider3 = new javax.swing.JSlider();
-        jCheckBoxTableHeap = new javax.swing.JCheckBox();
-        checkFileGroupPrimary = new javax.swing.JCheckBox();
-        jCheckBoxIndexClusterTipoVariavel = new javax.swing.JCheckBox();
+        jCBoxFragNaoCluster = new javax.swing.JCheckBox();
+        jCBoxFragCluster = new javax.swing.JCheckBox();
+        jCBoxFillFactor = new javax.swing.JCheckBox();
+        jCBoxIndiceNaoUtilizado = new javax.swing.JCheckBox();
+        jCBox10_MaiorIndice = new javax.swing.JCheckBox();
+        jCBoxTableHeap = new javax.swing.JCheckBox();
+        jCBoxIndexClusterTipoVariavel = new javax.swing.JCheckBox();
+        jCBoxGroupPrymary = new javax.swing.JCheckBox();
         jSlider1 = new javax.swing.JSlider();
         jSlider2 = new javax.swing.JSlider();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
+        jSlider3 = new javax.swing.JSlider();
+        jTexFnaoCluster = new javax.swing.JTextField();
+        jTextFcluster = new javax.swing.JTextField();
+        jTextFillFactor = new javax.swing.JTextField();
         jPanelFuncao = new javax.swing.JPanel();
         jBtVoltar = new javax.swing.JButton();
         jBtAvançar = new javax.swing.JButton();
@@ -102,81 +115,73 @@ public class Tela_Script extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Opções de Script");
-        setPreferredSize(new java.awt.Dimension(700, 700));
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Selecione as opções abaixo"));
 
+        jScrollBar1.setOrientation(javax.swing.JScrollBar.HORIZONTAL);
+        jScrollBar1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
         jLabelOpcaoPermissao.setText("Opções de Permissionamento:");
+
+        jLabelOpcaoIndex.setText("Opções de Indexação");
 
         jCheckBoxPermissaoSA.setText("Usuários com permissão de SA");
 
         jCheckBoxPermisssaoEscrita.setText("Usuários com permissão de escrita");
 
-        jLabelOpcaoIndex.setText("Opções de Indexação");
-
-        jCheckBoxABC.setText("abc");
-
-        jCheckBoxFragNaoCluster.setText("Indeces com fragmentação não clusterizado");
-        jCheckBoxFragNaoCluster.addActionListener(new java.awt.event.ActionListener() {
+        jCBoxFragNaoCluster.setText("Indeces com fragmentação não clusterizado");
+        jCBoxFragNaoCluster.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxFragNaoClusterActionPerformed(evt);
+                jCBoxFragNaoClusterActionPerformed(evt);
             }
         });
 
-        jCheckBoxFragCluster.setText("Indeces com fragmentação clusterizado");
-        jCheckBoxFragCluster.addActionListener(new java.awt.event.ActionListener() {
+        jCBoxFragCluster.setText("Indeces com fragmentação clusterizado");
+        jCBoxFragCluster.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxFragClusterActionPerformed(evt);
+                jCBoxFragClusterActionPerformed(evt);
             }
         });
 
-        jScrollBar1.setOrientation(javax.swing.JScrollBar.HORIZONTAL);
-        jScrollBar1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-        jCheckBoxFillFactor.setText("Índices com Fillfactor menor ");
-        jCheckBoxFillFactor.addActionListener(new java.awt.event.ActionListener() {
+        jCBoxFillFactor.setText("Índices com Fillfactor menor ");
+        jCBoxFillFactor.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxFillFactorActionPerformed(evt);
+                jCBoxFillFactorActionPerformed(evt);
             }
         });
 
-        jCheckBoxIndiceNaoUtilizado.setText("Índices não utilizados");
-        jCheckBoxIndiceNaoUtilizado.addActionListener(new java.awt.event.ActionListener() {
+        jCBoxIndiceNaoUtilizado.setText("Índices não utilizados");
+        jCBoxIndiceNaoUtilizado.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxIndiceNaoUtilizadoActionPerformed(evt);
+                jCBoxIndiceNaoUtilizadoActionPerformed(evt);
             }
         });
 
-        jCheckBoxMaiorIndice.setText("Os top 10 - maiores indices");
-        jCheckBoxMaiorIndice.addActionListener(new java.awt.event.ActionListener() {
+        jCBox10_MaiorIndice.setText("Os top 10 - maiores indices");
+        jCBox10_MaiorIndice.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxMaiorIndiceActionPerformed(evt);
+                jCBox10_MaiorIndiceActionPerformed(evt);
             }
         });
 
-        jSlider3.setMajorTickSpacing(5);
-        jSlider3.setPaintLabels(true);
-        jSlider3.setPaintTicks(true);
-        jSlider3.setValue(0);
-
-        jCheckBoxTableHeap.setText(" Tabelas heap");
-        jCheckBoxTableHeap.addActionListener(new java.awt.event.ActionListener() {
+        jCBoxTableHeap.setText(" Tabelas heap");
+        jCBoxTableHeap.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxTableHeapActionPerformed(evt);
+                jCBoxTableHeapActionPerformed(evt);
             }
         });
 
-        checkFileGroupPrimary.setText("Índices localizado no Filegroup PRIMARY");
-        checkFileGroupPrimary.addActionListener(new java.awt.event.ActionListener() {
+        jCBoxIndexClusterTipoVariavel.setText("Índices clusterizados com tipos de dados variantes");
+        jCBoxIndexClusterTipoVariavel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkFileGroupPrimaryActionPerformed(evt);
+                jCBoxIndexClusterTipoVariavelActionPerformed(evt);
             }
         });
 
-        jCheckBoxIndexClusterTipoVariavel.setText("Ííndices clusterizados com tipos de dados variantes");
-        jCheckBoxIndexClusterTipoVariavel.addActionListener(new java.awt.event.ActionListener() {
+        jCBoxGroupPrymary.setText("Índices localizado no Filegroup PRIMARY");
+        jCBoxGroupPrymary.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxIndexClusterTipoVariavelActionPerformed(evt);
+                jCBoxGroupPrymaryActionPerformed(evt);
             }
         });
 
@@ -190,105 +195,102 @@ public class Tela_Script extends javax.swing.JFrame {
         jSlider2.setPaintTicks(true);
         jSlider2.setValue(0);
 
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jSlider1, org.jdesktop.beansbinding.ELProperty.create("${value}"), jTextField1, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        jSlider3.setMajorTickSpacing(5);
+        jSlider3.setPaintLabels(true);
+        jSlider3.setPaintTicks(true);
+        jSlider3.setValue(0);
+
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jSlider3, org.jdesktop.beansbinding.ELProperty.create("${value}"), jTexFnaoCluster, org.jdesktop.beansbinding.BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
 
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
-            }
-        });
-
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jSlider2, org.jdesktop.beansbinding.ELProperty.create("${value}"), jTextField2, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jSlider2, org.jdesktop.beansbinding.ELProperty.create("${value}"), jTextFcluster, org.jdesktop.beansbinding.BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
 
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jSlider3, org.jdesktop.beansbinding.ELProperty.create("${value}"), jTextField3, org.jdesktop.beansbinding.BeanProperty.create("text"));
-        bindingGroup.addBinding(binding);
+        jTextFillFactor.setText("0");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollBar1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jScrollBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jCheckBoxMaiorIndice)
-                            .addComponent(jCheckBoxPermisssaoEscrita)
-                            .addComponent(jLabelOpcaoPermissao)
-                            .addComponent(jCheckBoxPermissaoSA)
+                            .addComponent(jSlider1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jSlider3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jSlider2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jCBox10_MaiorIndice)
+                                    .addComponent(jCheckBoxPermisssaoEscrita)
+                                    .addComponent(jLabelOpcaoPermissao)
+                                    .addComponent(jCheckBoxPermissaoSA)
+                                    .addComponent(jCBoxTableHeap)
+                                    .addComponent(jCBoxIndiceNaoUtilizado)
+                                    .addComponent(jLabelOpcaoIndex)
+                                    .addComponent(jCBoxIndexClusterTipoVariavel)
                                     .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jCheckBoxFillFactor)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(jCheckBoxFragNaoCluster))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addComponent(jCBoxFragNaoCluster)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jTexFnaoCluster, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jCBoxFillFactor)
+                                        .addGap(82, 82, 82)
+                                        .addComponent(jTextFillFactor, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(68, 68, 68))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(jSlider1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 391, Short.MAX_VALUE)
-                                .addComponent(jCheckBoxTableHeap, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jCheckBoxIndiceNaoUtilizado, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jCheckBoxABC, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabelOpcaoIndex, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(checkFileGroupPrimary, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                    .addComponent(jCheckBoxFragCluster)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addComponent(jSlider3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jSlider2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(jCheckBoxIndexClusterTipoVariavel))
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                            .addComponent(jCBoxGroupPrymary)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jCBoxFragCluster)
+                                .addGap(29, 29, 29)
+                                .addComponent(jTextFcluster, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(56, 56, 56)
                 .addComponent(jLabelOpcaoPermissao)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(21, 21, 21)
                 .addComponent(jCheckBoxPermissaoSA)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jCheckBoxPermisssaoEscrita)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jCheckBoxABC)
-                .addGap(18, 18, 18)
+                .addGap(26, 26, 26)
                 .addComponent(jLabelOpcaoIndex)
+                .addGap(28, 28, 28)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jCBoxFragNaoCluster)
+                            .addComponent(jTexFnaoCluster, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(4, 4, 4)
+                        .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jCBoxFragCluster, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextFcluster, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jSlider2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jCBoxFillFactor))
+                    .addComponent(jTextFillFactor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jCheckBoxFragNaoCluster)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jCheckBoxFragCluster, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSlider2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(5, 5, 5)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jCheckBoxFillFactor))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSlider3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
-                .addComponent(jCheckBoxIndiceNaoUtilizado)
+                .addGap(18, 18, 18)
+                .addComponent(jCBoxIndiceNaoUtilizado)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jCheckBoxMaiorIndice)
+                .addComponent(jCBox10_MaiorIndice)
+                .addGap(1, 1, 1)
+                .addComponent(jCBoxGroupPrymary)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(checkFileGroupPrimary)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jCheckBoxIndexClusterTipoVariavel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jCheckBoxTableHeap)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
+                .addComponent(jCBoxIndexClusterTipoVariavel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jCBoxTableHeap)
+                .addGap(18, 18, 18)
                 .addComponent(jScrollBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -332,7 +334,7 @@ public class Tela_Script extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanelFuncao, javax.swing.GroupLayout.DEFAULT_SIZE, 477, Short.MAX_VALUE)
+                    .addComponent(jPanelFuncao, javax.swing.GroupLayout.DEFAULT_SIZE, 457, Short.MAX_VALUE)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -353,30 +355,49 @@ public class Tela_Script extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jBtVoltarActionPerformed(java.awt.event.ActionEvent evt) {
-        this.getTelaDataBase().setVisible(true);
-        this.dispose();
+        if (conection != null) {
+            BasesDinamicas tdb = new BasesDinamicas(conection);
+            tdb.setVisible(true);
+            this.dispose();
+        }
     }
+
     private void jBtAvançarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtAvançarActionPerformed
-     //   try {
-             //this.conection.close();
-            //existe algo dentro do objeto telaResumo que esta dentro de telaScript
-            if (getTelaResumo() == null) {//nao foi ainda para outra tela
-                //cria nova instancia
-                //passando esta tela como parametro
-                setTelaResumo(new Tela_Resumo());
-                //a tela script agora conhece esta tela caso ela precise voltar
-                //guardando o caminho de volta
-                getTelaResumo().setTelaScript(this);
-                getTelaResumo().setVisible(true);
-                this.dispose();
-            } else {
-                //ja passou pela 3 tela e voltou pra essa
-                this.getTelaResumo().setVisible(true);
-                this.dispose();
-            }
-     //   } catch (SQLException ex) {
-     //       Logger.getLogger(Tela_Script.class.getName()).log(Level.SEVERE, null, ex);
-     //   }
+        if (jCBoxFragNaoCluster.isSelected()) {
+            jCBoxFragNaoClusterActionPerformed(evt);
+        }
+        if (jCBoxFragCluster.isSelected()) {
+            jCBoxFragClusterActionPerformed(evt);
+        }
+        if (jCBoxFillFactor.isSelected()) {
+            jCBoxFillFactorActionPerformed(evt);
+        }
+        if (jCBox10_MaiorIndice.isSelected()) {
+            jCBox10_MaiorIndiceActionPerformed(evt);
+        }
+        if (jCBoxGroupPrymary.isSelected()) {
+            jCBoxGroupPrymaryActionPerformed(evt);
+        }
+        if (jCBoxIndexClusterTipoVariavel.isSelected()) {
+            jCBoxIndexClusterTipoVariavelActionPerformed(evt);
+        }
+        if (jCBoxTableHeap.isSelected()) {
+            jCBoxTableHeapActionPerformed(evt);
+        }
+
+        if (getTelaResumo() == null) {//nao foi ainda para outra tela
+            //cria nova instancia
+            //passando esta tela como parametro
+
+            setTelaResumo(new Tela_Resumo(getListaComTodosSelects()));
+            //a tela script agora conhece esta tela caso ela precise voltar
+            //guardando o caminho de volta
+            getTelaResumo().setTelaScript(this);
+        }
+        getTelaResumo().setListacomlistaComTodosSelects(getListaComTodosSelects());
+        //ja passou pela 3 tela e voltou pra essa
+        this.getTelaResumo().setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_jBtAvançarActionPerformed
 
     private void jBtCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtCancelarActionPerformed
@@ -386,58 +407,113 @@ public class Tela_Script extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jBtCancelarActionPerformed
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    private void jCBoxFragNaoClusterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBoxFragNaoClusterActionPerformed
+        List<String> listaResultSetString = new ArrayList<>();
+        //pegando a conexao com o banco    
+        String selectNaoVariantes = "SELECT distinct\n"
+                + "                clmns.column_id AS id,\n"
+                + "                clmns.name AS name,\n"
+                + "                ISNULL(baset.name, N'') AS systemType,\n"
+                + "                ik.type_desc as descricao\n"
+                + "                FROM information_schema.tables,\n"
+                + "                sys.tables AS tbl\n"
+                + "                INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
+                + "                LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1))\n"
+                + "                LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
+                + "                LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
+                + "	         WHERE table_type = 'base table' \n"
+                + "                and ik.type = 1\n"
+                + "                and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
+                + "                ORDER BY\n"
+                + "                id ASC;";
 
-    private void checkFileGroupPrimaryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkFileGroupPrimaryActionPerformed
-            if(checkFileGroupPrimary.isSelected()){
-                String selectFG = " Select    OBJECT_NAME(i.object_id) As Tabela,\n" +
-                                        "i.name As Indice, \n" +
-                                        "i.object_id IddoObjetoIndice,\n" +
-                                        "fg.name as GrupoDeARQUIVO,\n" +
-                                        "i.type_desc as TipoDeIndice,\n" +
-                                        "o.type as TipoTabela\n" +
-                                    "from sys.indexes as i \n" +
-                                    "inner join sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n" +
-                                    "inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id\n" +
-                                    "inner join sys.objects as o on o.object_id = i.object_id\n" +
-                                    "where (o.type ='U') and (fg.filegroup_guid IS NULL) and (OBJECT_NAME(i.object_id) <> 'sysdiagrams')";
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = conection.prepareStatement(selectNaoVariantes);
+            rs = stmt.executeQuery();
+
+            IndicesClusterNaoVariantes icnv = new IndicesClusterNaoVariantes();
+            listaResultSetString.add(icnv.nomedoSelect());
+            //adicionando o cabeÃ§aho da tabela no array de String posicao get(0)
+            listaResultSetString.add(icnv.cabecalho());
+            System.out.println(icnv.cabecalho());
+            while (rs.next()) {//enquanto houver prÃ³ximo;
+                icnv.setId(rs.getInt("id"));
+                icnv.setName(rs.getString("name"));
+                icnv.setSystemType(rs.getString("systemType"));
+                icnv.setDescricao(rs.getString("descricao"));
+
+                System.out.println(icnv.toString());
+                //adicionando o corpo da tabela no array de String
+                listaResultSetString.add(icnv.toString());
             }
-    }//GEN-LAST:event_checkFileGroupPrimaryActionPerformed
-
-    private void jCheckBoxFragNaoClusterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxFragNaoClusterActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jCheckBoxFragNaoClusterActionPerformed
-
-    private void jCheckBoxFragClusterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxFragClusterActionPerformed
-        if (jCheckBoxFragCluster.isSelected()) {
-            String clustetizado = "SELECT object_name(SysBases.object_id),\n"
-                    + "SisIndex.name AS[IndexName],\n"
-                    + "SysBases.Index_type_desc,\n"
-                    + "SysBases.avg_fragmentation_in_percent,\n"
-                    + "SysBases.avg_fragment_size_in_pages,\n"
-                    + "SysBases.avg_page_space_used_in_percent,\n"
-                    + "SysBases.record_count,\n"
-                    + "SysBases.ghost_record_count,\n"
-                    + "SysBases.fragment_count,\n"
-                    + "SysBases.avg_fragment_size_in_pages \n "
-                    + "FROM sys.dm_db_index_physical_stats(db_id(DB_NAME()), NULL, NULL, NULL , 'DETAILED')\n"
-                    + "SysBases JOIN sys.tables SisTabelas WITH(nolock) ON \n"
-                    + "SysBases.object_id = SisTabelas.object_id JOIN sys.indexes SisIndex WITH(nolock) ON \n"
-                    + "SysBases.object_id = SisIndex.object_id AND SysBases.index_id = SisIndex.index_id \n"
-                    + "WHERE SisTabelas.is_ms_shipped =  > 1 and index_type_desc = 'CLUSTERED INDEX'\n"
-                    + "order by SysBases.avg_fragment_size_in_pages desc";
+        } catch (SQLException ex) {
+            System.err.println("Erro :" + ex);
+        } finally {
+            ConnectionFactory.fecharStmtERs(stmt, rs);
         }
-    }//GEN-LAST:event_jCheckBoxFragClusterActionPerformed
+        //adicionando o resultado do select ao listaComTodosSelects
+        getListaComTodosSelects().add(listaResultSetString);
+    }//GEN-LAST:event_jCBoxFragNaoClusterActionPerformed
 
-    private void jCheckBoxFillFactorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxFillFactorActionPerformed
-       // Listar todos os índices com Fillfactor menor que X - parâmetro int;
-        if (jCheckBoxFillFactor.isSelected()) {
-            int parametroFill = jSlider3.getValue();
+    private void jCBoxFragClusterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBoxFragClusterActionPerformed
+        List<String> listaResultSetString = new ArrayList<>();
+        //pegando a conexao com o banco    
+        String selectNaoVariantes = "SELECT distinct\n"
+                + "                clmns.column_id AS id,\n"
+                + "                clmns.name AS name,\n"
+                + "                ISNULL(baset.name, N'') AS systemType,\n"
+                + "                ik.type_desc as descricao\n"
+                + "                FROM information_schema.tables,\n"
+                + "                sys.tables AS tbl\n"
+                + "                INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
+                + "                LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1))\n"
+                + "                LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
+                + "                LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
+                + "	           WHERE table_type = 'base table' \n"
+                + "                and ik.type = 1\n"
+                + "                and SisTabelas.is_ms_shipped =  > 1 and index_type_desc = 'CLUSTERED INDEX'\n"
+                + "                and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
+                + "                ORDER BY\n"
+                + "                id ASC;";
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = conection.prepareStatement(selectNaoVariantes);
+            rs = stmt.executeQuery();
+
+            IndicesCluster ic = new IndicesCluster();
+            listaResultSetString.add(ic.nomedoSelect());
+            //adicionando o cabeÃ§aho da tabela no array de String posicao get(0)
+            listaResultSetString.add(ic.cabecalho());
+            System.out.println(ic.cabecalho());
+            while (rs.next()) {//enquanto houver prÃ³ximo;
+                ic.setId(rs.getInt("id"));
+                ic.setName(rs.getString("name"));
+                ic.setSystemType(rs.getString("systemType"));
+                ic.setDescricao(rs.getString("descricao"));
+
+                System.out.println(ic.toString());
+                //adicionando o corpo da tabela no array de String
+                listaResultSetString.add(ic.toString());
+            }
+        } catch (SQLException ex) {
+            System.err.println("Erro :" + ex);
+        } finally {
+            ConnectionFactory.fecharStmtERs(stmt, rs);
+        }
+        //adicionando o resultado do select ao listaComTodosSelects
+        getListaComTodosSelects().add(listaResultSetString);
+    }//GEN-LAST:event_jCBoxFragClusterActionPerformed
+
+    private void jCBoxFillFactorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBoxFillFactorActionPerformed
+        List<String> listaResultSetString = new ArrayList<>();
+        //pegando a conexao com o banco    
+        if (jCBoxFillFactor.isSelected()) {
+            int parametroFill = Integer.parseInt(jTextFillFactor.getText());
             String selectFill = "SELECT DB_NAME() AS DBNAME, a.name AS IndexName, \n"
-                    + " a.OrigFillFactor AS Fill_Factor, "
-                    + " b.table_name\n"
+                    + " a.OrigFillFactor AS Fill_Factor, b.table_name\n"
                     + "FROM sysindexes AS a\n"
                     + "INNER JOIN information_schema.tables AS b \n"
                     + " ON (OBJECT_ID(b.table_name) = a.id) \n"
@@ -445,127 +521,194 @@ public class Tela_Script extends javax.swing.JFrame {
                     + "WHERE a.OrigFillFactor < " + parametroFill + "\n"
                     + "ORDER BY a.OrigFillFactor DESC";
 
-            //abrir conexao;
-            Connection minhaConexao = new Tela_Resumo().getTelaScript().conection;
             PreparedStatement stmt = null;
             ResultSet rs = null;
-
-            List<IndicesFillFactor> listaResultSet = new ArrayList<>();
-
             try {
-                //É preciso percorrer o PreparedStatement
-                /*toda a consulta ta denro do do stmt que e a declaracao ja prepada
-            (Prepared Stamtement)*/
-                //Preparou tudo mas e preciso executar
-                stmt = minhaConexao.prepareStatement(selectFill);
-                //retorna um resultset o executeQuery()
-                //valores retornados estao em rs
-                rs = stmt.executeQuery();//query porque e consulta 
-                //para percorrer o resultSet
+                stmt = conection.prepareStatement(selectFill);
+                rs = stmt.executeQuery();
 
-                while (rs.next()) {//enquanto houver próximo;
-                    IndicesFillFactor iff = new IndicesFillFactor();
+                IndicesFillFactor iff = new IndicesFillFactor();
+                listaResultSetString.add(iff.nomedoSelect());
+                //adicionando o cabeÃ§aho da tabela no array de String posicao get(0)
+                listaResultSetString.add(iff.cabecalho());
+                System.out.println(iff.cabecalho());
+                while (rs.next()) {//enquanto houver prÃ³ximo;
 
-                    iff.setNomeDoBanco("NomeDoBanco");
-                    iff.setNomeIndice("NomeIndice");
-                    iff.setNomeTabela("NomeTabela");
+                    iff.setNomeDoBanco(rs.getString("nomeDoBanco"));
+                    iff.setNomeDoIndice(rs.getString("nomeDoIndice"));
+                    iff.setFillFactor(rs.getInt("fill_Factor"));
+                    iff.setNomeDaTabela(rs.getString("nomeDaTabela"));
 
-                    listaResultSet.add(iff);
+                    System.out.println(iff.toString());
+                    //adicionando o corpo da tabela no array de String
+                    listaResultSetString.add(iff.toString());
                 }
-
             } catch (SQLException ex) {
                 System.err.println("Erro :" + ex);
             } finally {
-                try {
-                    minhaConexao.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(Tela_Resumo.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                ConnectionFactory.fecharStmtERs(stmt, rs);
             }
+            //adicionando o resultado do select ao listaComTodosSelects
+            getListaComTodosSelects().add(listaResultSetString);
         }
-    }//GEN-LAST:event_jCheckBoxFillFactorActionPerformed
+    }//GEN-LAST:event_jCBoxFillFactorActionPerformed
 
-    private void jCheckBoxIndiceNaoUtilizadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxIndiceNaoUtilizadoActionPerformed
-        // Cristiano: Índices não utilizados
-        String idxNaoUtilizados = "SELECT  OBJECT_NAME(i.[object_id]) AS [Table Name] ,\n"
-                + "        i.name\n"
-                + "FROM    sys.indexes AS i\n"
-                + "        INNER JOIN sys.objects AS o ON i.[object_id] = o.[object_id]\n"
-                + "WHERE   i.index_id NOT IN ( SELECT  s.index_id\n"
-                + "                            FROM    sys.dm_db_index_usage_stats AS s\n"
-                + "                            WHERE   s.[object_id] = i.[object_id]\n"
-                + "                                    AND i.index_id = s.index_id\n"
-                + "                                    AND database_id = DB_ID() )\n"
-                + "        AND o.[type] = 'U'\n"
-                + "ORDER BY OBJECT_NAME(i.[object_id]) ASC ;";
+    private void jCBoxIndiceNaoUtilizadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBoxIndiceNaoUtilizadoActionPerformed
+        List<String> listaResultSetString = new ArrayList<>();
+        //pegando a conexao com o banco    
+        String selectidxNaoU = "SELECT  OBJECT_NAME(i.[object_id]) AS nomeDaTabela ,\n"
+                + "                     i.name as nomeDoIndice\n"
+                + "                FROM    sys.indexes AS i\n"
+                + "                       INNER JOIN sys.objects AS o ON i.[object_id] = o.[object_id]\n"
+                + "                WHERE   i.index_id NOT IN ( SELECT  s.index_id\n"
+                + "                                            FROM    sys.dm_db_index_usage_stats AS s\n"
+                + "                                        WHERE   s.[object_id] = i.[object_id]\n"
+                + "                                                  AND i.index_id = s.index_id\n"
+                + "                                                 AND database_id = DB_ID() )\n"
+                + "                      AND o.[type] = 'U'\n"
+                + "                ORDER BY OBJECT_NAME(i.[object_id]) ASC";
 
-        //abrir conexao;
-        Connection minhaConexao = new Tela_Resumo().getTelaScript().conection;
         PreparedStatement stmt = null;
         ResultSet rs = null;
-
-        List<IndicesNaoUtilizados> listaResultSet = new ArrayList<>();
-
         try {
-            //É preciso percorrer o PreparedStatement
-            /*toda a consulta ta denro do do stmt que e a declaracao ja prepada
-            (Prepared Stamtement)*/
-            //Preparou tudo mas e preciso executar
-            stmt = minhaConexao.prepareStatement(idxNaoUtilizados);
-            //retorna um resultset o executeQuery()
-            //valores retornados estao em rs
-            rs = stmt.executeQuery();//query porque e consulta 
-            //para percorrer o resultSet
+            stmt = conection.prepareStatement(selectidxNaoU);
+            rs = stmt.executeQuery();
 
-            while (rs.next()) {//enquanto houver próximo;
-                IndicesNaoUtilizados inn = new IndicesNaoUtilizados();
-                
-                inn.setNomeIndice("NomeIndice");
-                inn.setNomeTabela("NomeTabela");
+            IndicesNaoUtilizados idxNaoUtilizados = new IndicesNaoUtilizados();
 
-                listaResultSet.add(inn);
+            listaResultSetString.add(idxNaoUtilizados.nomedoSelect());
+            //adicionando o cabeÃ§aho da tabela no array de String posicao get(0)
+            listaResultSetString.add(idxNaoUtilizados.cabecalho());
+            System.out.println(idxNaoUtilizados.cabecalho());
+            while (rs.next()) {//enquanto houver prÃ³ximo;
+                idxNaoUtilizados.setNomeDaTabela(rs.getString("nomeDaTabela"));
+                idxNaoUtilizados.setNomeDoIndice(rs.getString("nomeDoIndice"));
+                System.out.println(idxNaoUtilizados.toString());
+                //adicionando o corpo da tabela no array de String
+                listaResultSetString.add(idxNaoUtilizados.toString());
             }
-
         } catch (SQLException ex) {
             System.err.println("Erro :" + ex);
         } finally {
-            try {
-                minhaConexao.close();
-            } catch (SQLException ex) {
-                Logger.getLogger(Tela_Resumo.class.getName()).log(Level.SEVERE, null, ex);
+            ConnectionFactory.fecharStmtERs(stmt, rs);
+        }
+        //adicionando o resultado do select ao listaComTodosSelects
+
+        getListaComTodosSelects().add(listaResultSetString);
+    }//GEN-LAST:event_jCBoxIndiceNaoUtilizadoActionPerformed
+
+    private void jCBox10_MaiorIndiceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBox10_MaiorIndiceActionPerformed
+        List<String> listaResultSetString = new ArrayList<>();
+        String selectTop10 = "select TOP (10) object_id as idDoObjeto,\n"
+                + "                index_type_desc as descricaoDoIndice,\n"
+                + "                avg_fragmentation_in_percent as fragmentacao\n"
+                + "                from sys.dm_db_index_physical_stats (   \n"
+                + "                " + this.getIdBanco() + "\n"
+                + "                 , null\n"
+                + "                , null\n"
+                + "                 , null\n"
+                + "                  , null\n"
+                + "                ) \n"
+                + "                where avg_fragmentation_in_percent >= 0 and\n"
+                + "                index_id > 0\n"
+                + "                order by avg_fragmentation_in_percent desc";
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            stmt = conection.prepareStatement(selectTop10);
+            rs = stmt.executeQuery();
+            //para percorrer o resultSet
+            MaioresIndices mi = new MaioresIndices();
+            listaResultSetString.add(mi.nomedoSelect());
+            //adicionando o cabeÃ§aho da tabela no array de String posicao get(0)
+            listaResultSetString.add(mi.cabecalho());
+            while (rs.next()) {//enquanto houver prÃ³ximo;
+                mi.setIdDoObjeto(rs.getLong("idDoObjeto"));
+                mi.setDescricaoDoIndice(rs.getString("descricaoDoIndice"));
+                mi.setFragmentacao(rs.getDouble("fragmentacao"));
+
+                System.out.println(mi.toString());
+                //adicionando o corpo da tabela no array de String
+                listaResultSetString.add(mi.toString());
             }
+        } catch (SQLException ex) {
+            System.err.println("Erro :" + ex);
+        } finally {
+            ConnectionFactory.fecharStmtERs(stmt, rs);
         }
-    }//GEN-LAST:event_jCheckBoxIndiceNaoUtilizadoActionPerformed
+        getListaComTodosSelects().add(listaResultSetString);
+    }//GEN-LAST:event_jCBox10_MaiorIndiceActionPerformed
 
-    private void jCheckBoxMaiorIndiceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMaiorIndiceActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jCheckBoxMaiorIndiceActionPerformed
-
-    private void jCheckBoxIndexClusterTipoVariavelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxIndexClusterTipoVariavelActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jCheckBoxIndexClusterTipoVariavelActionPerformed
-
-    private void jCheckBoxTableHeapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxTableHeapActionPerformed
-        if (jCheckBoxTableHeap.isSelected()) {
-            String tabelaHeap = " SELECT i.name AS index_name\n "
-                    + ",i.type_desc \n"
-                    + ",is_unique \n"
-                    + ",ds.type_desc AS filegroup_or_partition_scheme \n"
-                    + ",ds.name AS filegroup_or_partition_scheme_name \n"
-                    + ",ignore_dup_key \n"
-                    + ",is_primary_key \n"
-                    + ",is_unique_constraint \n"
-                    + ",fill_factor \n"
-                    + ",is_padded \n"
-                    + ",is_disabled \n"
-                    + ",allow_row_locks \n"
-                    + ",allow_page_locks \n"
-                    + "FROM sys.indexes AS i \n"
-                    + "INNER JOIN sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id \n"
-                    + "WHERE is_hypothetical = 0 AND i.index_id<> 0\n"
-                    + "AND i.object_id = OBJECT_ID('Person.Address');";
+    private void jCBoxGroupPrymaryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBoxGroupPrymaryActionPerformed
+        List<String> listaResultSetString = new ArrayList<>();
+        if (jCBoxGroupPrymary.isSelected()) {
+            String selectFG = " Select    OBJECT_NAME(i.object_id) As Tabela,\n"
+                    + "i.name As Indice, \n"
+                    + "i.object_id IddoObjetoIndice,\n"
+                    + "fg.name as GrupoDeARQUIVO,\n"
+                    + "i.type_desc as TipoDeIndice,\n"
+                    + "o.type as TipoTabela\n"
+                    + "from sys.indexes as i \n"
+                    + "inner join sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
+                    + "inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id\n"
+                    + "inner join sys.objects as o on o.object_id = i.object_id\n"
+                    + "where (o.type ='U') and (fg.filegroup_guid IS NULL) and (OBJECT_NAME(i.object_id) <> 'sysdiagrams')";
         }
-    }//GEN-LAST:event_jCheckBoxTableHeapActionPerformed
+    }//GEN-LAST:event_jCBoxGroupPrymaryActionPerformed
+
+    private void jCBoxIndexClusterTipoVariavelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBoxIndexClusterTipoVariavelActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCBoxIndexClusterTipoVariavelActionPerformed
+
+    private void jCBoxTableHeapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBoxTableHeapActionPerformed
+        List<String> listaResultSetString = new ArrayList<>();
+        //pegando a conexao com o banco    
+        String selectHeap = "SELECT DISTINCT i.name as  NomeIndice\n"
+                + "                     , i.type_desc as Descricao\n"
+                + "                     ,is_unique as chaveUnica\n"
+                + "                   ,is_primary_key as chavePrimaria\n"
+                + "                     FROM sys.indexes AS i\n"
+                + "                INNER JOIN sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
+                + "                inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id \n"
+                + "                inner join sys.objects as o on o.object_id = i.object_id\n"
+                + "                inner join sys.master_files as smf on smf.data_space_id = ds.data_space_id\n"
+                + "                inner join sys.databases as db on db.database_id = smf.database_id\n"
+                + "                INNER JOIN information_schema.tables AS b\n"
+                + "                 ON (OBJECT_ID(b.table_name) = i.object_id) \n"
+                + "               AND b.table_type = 'BASE TABLE'\n"
+                + "                WHERE is_hypothetical = 0 AND i.index_id<> 0";
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = conection.prepareStatement(selectHeap);
+            rs = stmt.executeQuery();
+
+            TabelasHeap sHeap = new TabelasHeap();
+            listaResultSetString.add(sHeap.nomedoSelect());
+            //adicionando o cabeÃ§aho da tabela no array de String posicao get(0)
+            listaResultSetString.add(sHeap.cabecalho());
+            System.out.println(sHeap.cabecalho());
+            while (rs.next()) {//enquanto houver prÃ³ximo;
+                sHeap.setNomeIndice(rs.getString("NomeIndice"));
+                sHeap.setDescricao(rs.getString("Descricao"));
+                sHeap.setChaveUnica(rs.getInt("chaveUnica"));
+                sHeap.setChavePrimaria(rs.getInt("chavePrimaria"));
+
+                System.out.println(sHeap.toString());
+                //adicionando o corpo da tabela no array de String
+                listaResultSetString.add(sHeap.toString());
+            }
+        } catch (SQLException ex) {
+            System.err.println("Erro :" + ex);
+        } finally {
+            ConnectionFactory.fecharStmtERs(stmt, rs);
+        }
+        //adicionando o resultado do select ao listaComTodosSelects
+        getListaComTodosSelects().add(listaResultSetString);
+    }//GEN-LAST:event_jCBoxTableHeapActionPerformed
 
     /**
      * @param args the command line arguments
@@ -602,23 +745,22 @@ public class Tela_Script extends javax.swing.JFrame {
             }
         });
     }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox checkFileGroupPrimary;
     private javax.swing.JButton jBtAjuda;
     private javax.swing.JButton jBtAvançar;
     private javax.swing.JButton jBtCancelar;
     private javax.swing.JButton jBtVoltar;
-    private javax.swing.JCheckBox jCheckBoxABC;
-    private javax.swing.JCheckBox jCheckBoxFillFactor;
-    private javax.swing.JCheckBox jCheckBoxFragCluster;
-    private javax.swing.JCheckBox jCheckBoxFragNaoCluster;
-    private javax.swing.JCheckBox jCheckBoxIndexClusterTipoVariavel;
-    private javax.swing.JCheckBox jCheckBoxIndiceNaoUtilizado;
-    private javax.swing.JCheckBox jCheckBoxMaiorIndice;
+    private javax.swing.JCheckBox jCBox10_MaiorIndice;
+    private javax.swing.JCheckBox jCBoxFillFactor;
+    private javax.swing.JCheckBox jCBoxFragCluster;
+    private javax.swing.JCheckBox jCBoxFragNaoCluster;
+    private javax.swing.JCheckBox jCBoxGroupPrymary;
+    private javax.swing.JCheckBox jCBoxIndexClusterTipoVariavel;
+    private javax.swing.JCheckBox jCBoxIndiceNaoUtilizado;
+    private javax.swing.JCheckBox jCBoxTableHeap;
     private javax.swing.JCheckBox jCheckBoxPermissaoSA;
     private javax.swing.JCheckBox jCheckBoxPermisssaoEscrita;
-    private javax.swing.JCheckBox jCheckBoxTableHeap;
     private javax.swing.JLabel jLabelOpcaoIndex;
     private javax.swing.JLabel jLabelOpcaoPermissao;
     private javax.swing.JPanel jPanel1;
@@ -627,9 +769,9 @@ public class Tela_Script extends javax.swing.JFrame {
     private javax.swing.JSlider jSlider1;
     private javax.swing.JSlider jSlider2;
     private javax.swing.JSlider jSlider3;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField jTexFnaoCluster;
+    private javax.swing.JTextField jTextFcluster;
+    private javax.swing.JTextField jTextFillFactor;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }
