@@ -28,7 +28,7 @@ public class BasesDinamicas extends JFrame {
     private final String consulta = "Select name,database_id From sys.databases;";
     private JPanel contentPane;
     private List<JCheckBox> checkboxes = new ArrayList<>();
-    private List<String> opcoesSelected = new ArrayList<>();
+    private List<Bases> opcoesSelected = new ArrayList<>();
     public int count;
     //declaracao de botoes 
     private javax.swing.JButton jBtAjuda = new javax.swing.JButton();
@@ -58,7 +58,10 @@ public class BasesDinamicas extends JFrame {
         for (int i = 0; i < this.checkboxes.size(); i++) {
             JCheckBox checkBox = this.checkboxes.get(i);
             if (checkBox.isSelected()) {
-                this.opcoesSelected.add(checkBox.getName());
+                Bases base = new Bases();
+                base.setNome(checkBox.getText());
+                base.setId(Integer.parseInt(checkBox.getName()));
+                this.opcoesSelected.add(base);
                 database = checkboxes.get(i).getText();
             }
         }
@@ -182,7 +185,7 @@ public class BasesDinamicas extends JFrame {
 
     }
 
-    public List<String> getOpcoesSelected() {
+    public List<Bases> getOpcoesSelected() {
         return opcoesSelected;
     }
 

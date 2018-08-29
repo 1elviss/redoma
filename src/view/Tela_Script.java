@@ -23,6 +23,7 @@ import model.bean.IndicesNaoUtilizados;
 import model.bean.IndicesNoPrimary;
 import model.bean.MaioresIndices;
 import model.bean.TabelasHeap;
+import util.Bases;
 import util.ConnectionFactory;
 import view.Tela_Data_Base;
 
@@ -33,7 +34,7 @@ import view.Tela_Data_Base;
 public class Tela_Script extends javax.swing.JFrame {
 
     public static Connection conection;
-    public static List<String> selectedBancos;
+    public static List<Bases> selectedBancos;
     private List<Object> listaComTodosSelects = new ArrayList<>();
 
     public List<Object> getListaComTodosSelects() {
@@ -49,6 +50,11 @@ public class Tela_Script extends javax.swing.JFrame {
     private String getIdBanco() {
         return idBanco;
     }
+    private String nomeBanco;
+
+    private String getNomeBanco() {
+        return nomeBanco;
+    }
 
     /**
      * Creates new form Tela_Data_Base
@@ -62,10 +68,12 @@ public class Tela_Script extends javax.swing.JFrame {
         initComponents();
     }
 
-    public Tela_Script(Connection conection, List<String> selectedBancos) {
+    public Tela_Script(Connection conection, List<Bases> selectedBancos) {
         this.conection = conection;
         this.selectedBancos = selectedBancos;
-        this.idBanco = selectedBancos.get(0);
+        this.idBanco = Integer.toString(selectedBancos.get(0).getId());
+        this.nomeBanco = selectedBancos.get(0).getNome();
+
         initComponents();
     }
 
@@ -278,25 +286,26 @@ public class Tela_Script extends javax.swing.JFrame {
         //adicionando o resultado do select ao listaComTodosSelects
         getListaComTodosSelects().add(listaResultSetString);
     }
+
     public void selecionarNaoVariantes() {
         List<String> listaResultSetString = new ArrayList<>();
         //pegando a conexao com o banco    
-        String selectNaoVariantes = "SELECT distinct\n" +
-"                clmns.column_id AS id,\n" +
-"                clmns.name AS name,\n" +
-"                ISNULL(baset.name, N'') AS systemType,\n" +
-"                ik.type_desc as descricao\n" +
-"                FROM information_schema.tables,\n" +
-"                sys.tables AS tbl\n" +
-"                INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n" +
-"                LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1))\n" +
-"                LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n" +
-"                LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n" +
-"	         WHERE table_type = 'base table' \n" +
-"                and ik.type = 1\n" +
-"                and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n" +
-"                ORDER BY\n" +
-"                id ASC;";
+        String selectNaoVariantes = "SELECT distinct\n"
+                + "                clmns.column_id AS id,\n"
+                + "                clmns.name AS name,\n"
+                + "                ISNULL(baset.name, N'') AS systemType,\n"
+                + "                ik.type_desc as descricao\n"
+                + "                FROM information_schema.tables,\n"
+                + "                sys.tables AS tbl\n"
+                + "                INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
+                + "                LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1))\n"
+                + "                LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
+                + "                LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
+                + "	         WHERE table_type = 'base table' \n"
+                + "                and ik.type = 1\n"
+                + "                and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
+                + "                ORDER BY\n"
+                + "                id ASC;";
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -648,7 +657,7 @@ public class Tela_Script extends javax.swing.JFrame {
         if (jCheckBoxIndiceNaoUtilizado.isSelected()) {
             selecionarIndicesNaoUtilizados();
         }
-         if (jCheckBoxIndexClusterTipoVariavel.isSelected()) {
+        if (jCheckBoxIndexClusterTipoVariavel.isSelected()) {
             selecionarNaoVariantes();
         }
 
