@@ -9,7 +9,7 @@ package bean;
  *
  * @author PC
  */
-public class IndicesClusterNaoVariantes {
+public class IndicesClusterVariantes {
 
     private int id;
     private String name;
