@@ -1,4 +1,5 @@
 /nbproject
 /Desktop/Java/Redoma/build/
-.xml
+*.xml
+*.mf
 /build
