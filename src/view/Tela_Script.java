@@ -24,6 +24,7 @@ import model.bean.IndicesNaoUtilizados;
 import model.bean.IndicesNoPrimary;
 import model.bean.IndicesNonClustered;
 import model.bean.MaioresIndices;
+import model.bean.MaioresIndicesPorTamanho;
 import model.bean.TabelasHeap;
 import util.Bases;
 import view.BasesDinamicas;
@@ -96,6 +97,49 @@ public class Tela_Script extends javax.swing.JFrame {
 
     public void setTelaResumo(Tela_Resumo telaResumo) {
         this.telaResumo = telaResumo;
+    }
+
+    public void selecionarTop10IndexesSize() {
+        List<String> listaResultSetString = new ArrayList<>();
+        String selectTop10 = "use " + getNomeBanco()
+                + "\n"
+                + "SELECT top 10 i.[name] AS IndexName\n"
+                + "    ,SUM(s.[used_page_count]) * 8 AS IndexSizeKB\n"
+                + "	, i.[object_id] as objectId\n"
+                + "FROM sys.dm_db_partition_stats AS s\n"
+                + "INNER JOIN sys.indexes AS i ON s.[object_id] = i.[object_id]\n"
+                + "    AND s.[index_id] = i.[index_id]\n"
+                + "GROUP BY i.[name], i.[object_id]\n"
+                + "ORDER BY 2 desc\n";
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            stmt = conection.prepareStatement(selectTop10);
+            rs = stmt.executeQuery();
+            //para percorrer o resultSet
+            MaioresIndicesPorTamanho mit = new MaioresIndicesPorTamanho();
+            listaResultSetString.add(mit.nomedoSelect());
+            //adicionando o cabeçaho da tabela no array de String posicao get(0)
+            System.out.println(mit.nomedoSelect());
+            listaResultSetString.add(mit.cabecalho());
+            System.out.println(mit.cabecalho());
+            while (rs.next()) {//enquanto houver próximo;
+                mit.setIdDoObjeto(rs.getLong("objectId"));
+                mit.setIndexName(rs.getString("IndexName"));
+                mit.setIndexSizeKB(rs.getDouble("IndexSizeKB"));
+
+                System.out.println(mit.toString());
+                //adicionando o corpo da tabela no array de String
+                listaResultSetString.add(mit.toString());
+            }
+        } catch (SQLException ex) {
+            System.err.println("Erro :" + ex);
+        } finally {
+            ConnectionFactory.fecharStmtERs(stmt, rs);
+        }
+        System.out.println("*************************************************");
+        getListaComTodosSelects().add(listaResultSetString);
     }
 
     public void selecionarIndicesNonClustered() {
@@ -530,6 +574,7 @@ public class Tela_Script extends javax.swing.JFrame {
         txtIndiceNonClustered = new javax.swing.JTextField();
         txtIndiceClustered = new javax.swing.JTextField();
         txtFillFactor = new javax.swing.JTextField();
+        jCheckBoxMaiorIndice1 = new javax.swing.JCheckBox();
         jPanelFuncao = new javax.swing.JPanel();
         jBtVoltar = new javax.swing.JButton();
         jBtAvançar = new javax.swing.JButton();
@@ -628,6 +673,13 @@ public class Tela_Script extends javax.swing.JFrame {
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jSlider3, org.jdesktop.beansbinding.ELProperty.create("${value}"), txtFillFactor, org.jdesktop.beansbinding.BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
 
+        jCheckBoxMaiorIndice1.setText("Os top 10 - maiores Índices por tamanho");
+        jCheckBoxMaiorIndice1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxMaiorIndice1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -659,6 +711,7 @@ public class Tela_Script extends javax.swing.JFrame {
                         .addContainerGap(177, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jCheckBoxMaiorIndice1)
                             .addComponent(jCheckBoxTableHeap)
                             .addComponent(jCheckBoxIndiceNaoUtilizado)
                             .addComponent(jLabelOpcaoIndex)
@@ -701,13 +754,15 @@ public class Tela_Script extends javax.swing.JFrame {
                     .addComponent(txtFillFactor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jCheckBoxIndiceNaoUtilizado)
-                .addGap(18, 18, 18)
-                .addComponent(jCheckBoxMaiorIndice)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jCheckBoxMaiorIndice, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jCheckBoxMaiorIndice1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(checkFileGroupPrimary)
-                .addGap(18, 18, Short.MAX_VALUE)
-                .addComponent(jCheckBoxIndexClusterTipoVariavel)
                 .addGap(18, 18, 18)
+                .addComponent(jCheckBoxIndexClusterTipoVariavel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
                 .addComponent(jCheckBoxTableHeap)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -796,7 +851,7 @@ public class Tela_Script extends javax.swing.JFrame {
             BasesDinamicas.resumoOpcoes.add(jCheckBoxPermisssaoEscrita.getText());
             //rode o metodo dele
         }
-
+        
         //opções de script
         if (jCheckBoxFragNaoCluster.isSelected()) {
             BasesDinamicas.resumoOpcoes.add(jCheckBoxFragNaoCluster.getText() + " com fragmentação " + txtIndiceNonClustered.getText());
@@ -818,6 +873,11 @@ public class Tela_Script extends javax.swing.JFrame {
             BasesDinamicas.resumoOpcoes.add(jCheckBoxMaiorIndice.getText());
             selecionarTop10();
         }
+        
+        if(jCheckBoxMaiorIndice1.isSelected()){
+            BasesDinamicas.resumoOpcoes.add(jCheckBoxMaiorIndice1.getText());
+            selecionarTop10IndexesSize();
+        }
         if (checkFileGroupPrimary.isSelected()) {
             BasesDinamicas.resumoOpcoes.add(checkFileGroupPrimary.getText());
             selecionarIndicesNoPrimary();
@@ -835,7 +895,7 @@ public class Tela_Script extends javax.swing.JFrame {
         for (String opcoes : temporaria) {
             System.out.println(opcoes.toString());
         }
-        
+
         //ligações entre as telas
         if (getTelaResumo() == null) {//nao foi ainda para tela resumo
             //a tela script apontando para a tela resumo
@@ -851,7 +911,7 @@ public class Tela_Script extends javax.swing.JFrame {
             //ja foi pra tela resumo e voltou pra essa
             //passa denovo caso eu retire algo da lista ou coloque passando esta nova como parametro
             getTelaResumo().setListacomlistaComTodosSelects(getListaComTodosSelects());
-            getTelaResumo().adicionarTudoNaTelaResumo(); 
+            getTelaResumo().adicionarTudoNaTelaResumo();
         }
         //chama a tela resumo
         getTelaResumo().setVisible(true);
@@ -892,6 +952,10 @@ public class Tela_Script extends javax.swing.JFrame {
     private void jCheckBoxTableHeapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxTableHeapActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jCheckBoxTableHeapActionPerformed
+
+    private void jCheckBoxMaiorIndice1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMaiorIndice1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCheckBoxMaiorIndice1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -941,6 +1005,7 @@ public class Tela_Script extends javax.swing.JFrame {
     private javax.swing.JCheckBox jCheckBoxIndexClusterTipoVariavel;
     private javax.swing.JCheckBox jCheckBoxIndiceNaoUtilizado;
     private javax.swing.JCheckBox jCheckBoxMaiorIndice;
+    private javax.swing.JCheckBox jCheckBoxMaiorIndice1;
     private javax.swing.JCheckBox jCheckBoxPermissaoSA;
     private javax.swing.JCheckBox jCheckBoxPermisssaoEscrita;
     private javax.swing.JCheckBox jCheckBoxTableHeap;

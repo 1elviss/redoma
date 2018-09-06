@@ -1,6 +1,6 @@
 package view;
 
-import com.microsoft.sqlserver.jdbc.StringUtils;
+//import com.microsoft.sqlserver.jdbc.StringUtils;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.sql.Connection;
