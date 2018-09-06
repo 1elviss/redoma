@@ -68,8 +68,12 @@ public class ConnectionFactory {
         ConnectionFactory.database = database;
     }
     
+//    public static Connection getConnectionWindows(){
+//        
+//    }
     
-    public Connection getConnection(String servidor, String user, String  password) {
+    
+    public static Connection getConnection(String servidor, String user, String  password) {
         nomeServidor = servidor;
         usuario = user;
         senha = password;
@@ -115,6 +119,23 @@ public class ConnectionFactory {
             //   JOptionPane.showMessageDialog(null, "Ocorreu um erro ao tentar conectar-se ao servidor verifique se o nome do servidor "
             //         + "\n e os dados de usuario e senha estão corretos.");
 
+            e.printStackTrace();
+        }
+        return connection;
+    }
+    
+    //método para conexao com sql server usando windows authentication
+    public static Connection getConnectionWindows(String servidor) {
+        nomeServidor = servidor;
+        String url = "jdbc:sqlserver://" + nomeServidor + ";integratedSecurity=true;";
+        try {
+            connection = DriverManager.getConnection(url);
+            System.out.println(connection);
+        } // Erro caso o driver JDBC não foi instalado
+        catch (SQLException e) {
+            // Erro caso haja problemas para se conectar ao banco de dados
+            //   JOptionPane.showMessageDialog(null, "Ocorreu um erro ao tentar conectar-se ao servidor verifique se o nome do servidor "
+            //         + "\n e os dados de usuario e senha estão corretos.");
             e.printStackTrace();
         }
         return connection;

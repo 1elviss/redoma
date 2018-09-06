@@ -5,14 +5,20 @@
  */
 package view;
 
-import javax.swing.JOptionPane;
+import java.awt.event.KeyEvent;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFormattedTextField;
+import javax.swing.JOptionPane;
+import javax.swing.text.MaskFormatter;
 import util.ConnectionFactory;
 
 /**
@@ -24,11 +30,35 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
     /**
      * Creates new form telaLogin
      */
-
     private Connection con;
+
+    public void recuperarNomeServidorLocal() {
+        String nomeServidor = null;
+        try {
+            nomeServidor = InetAddress.getLocalHost().getHostName();
+            //  JOptionPane.showMessageDialog(null, "nome servidor local :" + nomeServidor.toUpperCase());
+        } catch (UnknownHostException ex) {
+            JOptionPane.showMessageDialog(null, "erro ao recuperar o nome do servidor local" + ex);
+        }
+        this.jTextFieldNomServidor.setText(nomeServidor.toUpperCase());
+    }
 
     public Tela_Login_Principal() {
         initComponents();
+        //  Metodo para recuperar o nome do servidor local e ja deixar o campo 
+        //  preenchido.
+        recuperarNomeServidorLocal();
+        jBtConectar.requestFocus();
+    }
+
+    public void autenticar() {
+        if (jComboBoxAutenticar.getSelectedIndex() == 0) {
+            // Autenticação usando usuario e senha.
+            con = ConnectionFactory.getConnection(jTextFieldNomServidor.getText(), jTextFieldNomUsuario.getText(), new String(jPasswordField1.getPassword()));
+        } else {
+            // Autenticação pelo windows.
+            this.con = ConnectionFactory.getConnectionWindows(jTextFieldNomServidor.getText());
+        }
     }
 
     /**
@@ -59,9 +89,18 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("TelaLogin");
         setName("Gerenciador de dados"); // NOI18N
-        setPreferredSize(new java.awt.Dimension(500, 550));
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                formKeyPressed(evt);
+            }
+        });
 
         jPanelPrincipal.setBorder(javax.swing.BorderFactory.createTitledBorder("Redoma - Tela de Login"));
+        jPanelPrincipal.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jPanelPrincipalKeyPressed(evt);
+            }
+        });
 
         jBtCredito.setText("Créditos");
         jBtCredito.setPreferredSize(new java.awt.Dimension(100, 30));
@@ -92,11 +131,28 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
             }
         });
 
-        jComboBoxAutenticar.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Autenticação do SQL Server" }));
+        jComboBoxAutenticar.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Autenticação do SQL Server", "Autenticação do Windows" }));
+        jComboBoxAutenticar.setToolTipText("");
+        jComboBoxAutenticar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxAutenticarActionPerformed(evt);
+            }
+        });
+        jComboBoxAutenticar.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jComboBoxAutenticarKeyPressed(evt);
+            }
+        });
 
         jTextFieldNomUsuario.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextFieldNomUsuarioActionPerformed(evt);
+            }
+        });
+
+        jPasswordField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jPasswordField1KeyPressed(evt);
             }
         });
 
@@ -173,6 +229,11 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
                 jBtConectarActionPerformed(evt);
             }
         });
+        jBtConectar.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jBtConectarKeyPressed(evt);
+            }
+        });
         jPanelFuncao.add(jBtConectar);
 
         jBtSair.setText("Sair");
@@ -219,11 +280,9 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jBtConectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtConectarActionPerformed
-
-        ConnectionFactory fabrica = new ConnectionFactory();
-        con = fabrica.getConnection(jTextFieldNomServidor.getText(), jTextFieldNomUsuario.getText(), new String(jPasswordField1.getPassword()));
-
-        if (con != null) {
+        this.autenticar();
+        if (con != null) {//existe uma conexao aberta
+            //va para tela escolher bancos dinamicamente
             BasesDinamicas tdb = new BasesDinamicas(con);
             tdb.setVisible(true);
             this.dispose();
@@ -241,7 +300,6 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
             }
         }
         if (resposta == JOptionPane.YES_OPTION) {
-
             System.exit(0);
         }
     }//GEN-LAST:event_jBtSairActionPerformed
@@ -264,6 +322,66 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
     private void jTextFieldNomUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldNomUsuarioActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextFieldNomUsuarioActionPerformed
+
+    private void jComboBoxAutenticarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxAutenticarActionPerformed
+        if (jComboBoxAutenticar.getSelectedIndex() == 0) {
+            JOptionPane.showMessageDialog(null, "Autenticação via Sql Server!");
+            // Deixar campos habilitados entao enable recebe true;
+            jTextFieldNomUsuario.setEnabled(true);
+            jPasswordField1.setEnabled(true);
+        }
+        if (jComboBoxAutenticar.getSelectedIndex() == 1) {
+            // Deixar campos desabilitados enato enable recebe false;
+            JOptionPane.showMessageDialog(null, "Autenticação via Windows!");
+            jTextFieldNomUsuario.setEnabled(false);
+            jPasswordField1.setEnabled(false);
+        }
+    }//GEN-LAST:event_jComboBoxAutenticarActionPerformed
+
+    private void jBtConectarKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jBtConectarKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            this.autenticar();
+            if (con != null) {//existe uma conexao aberta
+                //va para tela escolher bancos dinamicamente
+                BasesDinamicas tdb = new BasesDinamicas(con);
+                tdb.setVisible(true);
+                this.dispose();
+            }
+        }
+    }//GEN-LAST:event_jBtConectarKeyPressed
+
+    private void jPasswordField1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPasswordField1KeyPressed
+        //para entrar quando clicar enter no campo senha
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            this.autenticar();
+            if (con != null) {//existe uma conexao aberta
+                //va para tela escolher bancos dinamicamente
+                BasesDinamicas tdb = new BasesDinamicas(con);
+                tdb.setVisible(true);
+                this.dispose();
+            }
+        }
+    }//GEN-LAST:event_jPasswordField1KeyPressed
+
+    private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
+
+    }//GEN-LAST:event_formKeyPressed
+
+    private void jPanelPrincipalKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPanelPrincipalKeyPressed
+
+    }//GEN-LAST:event_jPanelPrincipalKeyPressed
+
+    private void jComboBoxAutenticarKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jComboBoxAutenticarKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            this.autenticar();
+            if (con != null) {//existe uma conexao aberta
+                //va para tela escolher bancos dinamicamente
+                BasesDinamicas tdb = new BasesDinamicas(con);
+                tdb.setVisible(true);
+                this.dispose();
+            }
+        }
+    }//GEN-LAST:event_jComboBoxAutenticarKeyPressed
 
     /**
      * @param args the command line arguments
@@ -299,6 +417,7 @@ public class Tela_Login_Principal extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Tela_Login_Principal().setVisible(true);
+
             }
         });
     }

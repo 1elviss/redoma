@@ -17,13 +17,16 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import model.bean.IndicesClusterNaoVariantes;
+import model.bean.IndicesClusterVariantes;
+import model.bean.IndicesClustered;
 import model.bean.IndicesFillFactor;
 import model.bean.IndicesNaoUtilizados;
 import model.bean.IndicesNoPrimary;
+import model.bean.IndicesNonClustered;
 import model.bean.MaioresIndices;
 import model.bean.TabelasHeap;
 import util.Bases;
+import view.BasesDinamicas;
 import util.ConnectionFactory;
 import view.Tela_Data_Base;
 
@@ -45,14 +48,14 @@ public class Tela_Script extends javax.swing.JFrame {
         this.listaComTodosSelects = listaComTodosSelects;
     }
 
-    private String idBanco;
+    private int idBanco;
 
-    private String getIdBanco() {
+    public int getIdBanco() {
         return idBanco;
     }
     private String nomeBanco;
 
-    private String getNomeBanco() {
+    public String getNomeBanco() {
         return nomeBanco;
     }
 
@@ -71,9 +74,8 @@ public class Tela_Script extends javax.swing.JFrame {
     public Tela_Script(Connection conection, List<Bases> selectedBancos) {
         this.conection = conection;
         this.selectedBancos = selectedBancos;
-        this.idBanco = Integer.toString(selectedBancos.get(0).getId());
+        this.idBanco = selectedBancos.get(0).getId();
         this.nomeBanco = selectedBancos.get(0).getNome();
-
         initComponents();
     }
 
@@ -96,7 +98,204 @@ public class Tela_Script extends javax.swing.JFrame {
         this.telaResumo = telaResumo;
     }
 
+    public void selecionarIndicesNonClustered() {
+        List<String> listaResultSetString = new ArrayList<>();
+        //pegando a conexao com o banco    
+        int parametroNonClustered = Integer.parseInt(txtIndiceNonClustered.getText());
+        String selectNonClustered = "USE " + getNomeBanco() + ";"
+                + "SELECT object_name(SysBases.object_id) AS nomeTabela ,\n"
+                + "SisIndex.name AS  nomeIndice,\n"
+                + "SysBases.Index_type_desc AS descricaoIndice,\n"
+                + "SysBases.avg_fragmentation_in_percent AS fragmentacao\n"
+                + "FROM sys.dm_db_index_physical_stats(db_id(DB_NAME()), NULL, NULL, NULL , 'DETAILED') SysBases\n"
+                + "JOIN sys.tables SisTabelas WITH (nolock) ON SysBases.object_id = SisTabelas.object_id\n"
+                + "JOIN sys.indexes SisIndex WITH (nolock) ON SysBases.object_id = SisIndex.object_id AND SysBases.index_id = SisIndex.index_id\n"
+                + "WHERE SisTabelas.is_ms_shipped = 0 and index_type_desc = 'NONCLUSTERED INDEX' "
+                + "and SysBases.avg_fragmentation_in_percent >= " + parametroNonClustered + "\n"
+                + "order by SysBases.avg_fragment_size_in_pages desc";
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = conection.prepareStatement(selectNonClustered);
+            rs = stmt.executeQuery();
+
+            IndicesNonClustered inc = new IndicesNonClustered();
+            listaResultSetString.add(inc.nomedoSelect());
+            //adicionando o cabeçaho da tabela no array de String posicao get(0)
+            System.out.println(inc.nomedoSelect());
+            listaResultSetString.add(inc.cabecalho());
+            System.out.println(inc.cabecalho());
+            while (rs.next()) {//enquanto houver próximo;
+
+                inc.setNomeTabela(rs.getString("nomeTabela"));
+                inc.setNomeIndice(rs.getString("nomeIndice"));
+                inc.setDescricaoIndice(rs.getString("descricaoIndice"));
+                inc.setFragmentacao(rs.getInt("fragmentacao"));
+
+                System.out.println(inc.toString());
+                //adicionando o corpo da tabela no array de String
+                listaResultSetString.add(inc.toString());
+            }
+        } catch (SQLException ex) {
+            System.err.println("Erro :" + ex);
+        } finally {
+            ConnectionFactory.fecharStmtERs(stmt, rs);
+        }
+        System.out.println("*************************************************");
+        //adicionando o resultado do select ao listaComTodosSelects
+        getListaComTodosSelects().add(listaResultSetString);
+    }
+
+    public void selecionarIndicesClustered() {
+        List<String> listaResultSetString = new ArrayList<>();
+        //pegando a conexao com o banco    
+        int parametroClustered = Integer.parseInt(txtIndiceClustered.getText());
+        String selectClustered = "USE " + getNomeBanco() + ";"
+                + "SELECT object_name(SysBases.object_id) AS nomeTabela ,\n"
+                + "SisIndex.name AS  nomeIndice,\n"
+                + "SysBases.Index_type_desc AS descricaoIndice,\n"
+                + "SysBases.avg_fragmentation_in_percent AS fragmentacao\n"
+                + "FROM sys.dm_db_index_physical_stats(db_id(DB_NAME()), NULL, NULL, NULL , 'DETAILED') SysBases\n"
+                + "JOIN sys.tables SisTabelas WITH (nolock) ON SysBases.object_id = SisTabelas.object_id\n"
+                + "JOIN sys.indexes SisIndex WITH (nolock) ON SysBases.object_id = SisIndex.object_id AND SysBases.index_id = SisIndex.index_id\n"
+                + "WHERE SisTabelas.is_ms_shipped = 0 and index_type_desc = 'CLUSTERED INDEX' "
+                + "and SysBases.avg_fragmentation_in_percent >= " + parametroClustered + "\n"
+                + "order by SysBases.avg_fragment_size_in_pages desc";
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = conection.prepareStatement(selectClustered);
+            rs = stmt.executeQuery();
+
+            IndicesClustered ic = new IndicesClustered();
+            listaResultSetString.add(ic.nomedoSelect());
+            //adicionando o cabeçaho da tabela no array de String posicao get(0)
+            System.out.println(ic.nomedoSelect());
+            listaResultSetString.add(ic.cabecalho());
+            System.out.println(ic.cabecalho());
+            while (rs.next()) {//enquanto houver próximo;
+
+                ic.setNomeTabela(rs.getString("nomeTabela"));
+                ic.setNomeIndice(rs.getString("nomeIndice"));
+                ic.setDescricaoIndice(rs.getString("descricaoIndice"));
+                ic.setFragmentacao(rs.getInt("fragmentacao"));
+
+                System.out.println(ic.toString());
+                //adicionando o corpo da tabela no array de String
+                listaResultSetString.add(ic.toString());
+            }
+        } catch (SQLException ex) {
+            System.err.println("Erro :" + ex);
+        } finally {
+            ConnectionFactory.fecharStmtERs(stmt, rs);
+        }
+        System.out.println("*************************************************");
+        //adicionando o resultado do select ao listaComTodosSelects
+        getListaComTodosSelects().add(listaResultSetString);
+    }
+
+    public void selecionarFillFactor() {
+        List<String> listaResultSetString = new ArrayList<>();
+        //pegando a conexao com o banco    
+        int parametroFill = Integer.parseInt(txtFillFactor.getText());
+        String selectFill = "USE " + getNomeBanco() + ";"
+                + "SELECT DB_NAME() AS nomeDoBanco, i.name AS nomeDoIndice, \n"
+                + "                 i.fill_factor AS fill_Factor, b.table_name as nomeDaTabela\n"
+                + "               FROM sys.indexes AS i\n"
+                + "                inner join sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
+                + "                inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id\n"
+                + "                inner join sys.objects as o on o.object_id = i.object_id\n"
+                + "                inner join sys.master_files as smf on smf.data_space_id = ds.data_space_id\n"
+                + "                inner join sys.databases as db on db.database_id = smf.database_id\n"
+                + "                INNER JOIN information_schema.tables AS b\n"
+                + "                 ON (OBJECT_ID(b.table_name) = i.object_id) \n"
+                + "                 AND b.table_type = 'BASE TABLE'\n"
+                + "                WHERE i.fill_factor < " + parametroFill + "\n"
+                + "                ORDER BY i.fill_factor DESC";
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = conection.prepareStatement(selectFill);
+            rs = stmt.executeQuery();
+
+            IndicesFillFactor iff = new IndicesFillFactor();
+            listaResultSetString.add(iff.nomedoSelect());
+            //adicionando o cabeçaho da tabela no array de String posicao get(0)
+            System.out.println(iff.nomedoSelect());
+            listaResultSetString.add(iff.cabecalho());
+            System.out.println(iff.cabecalho());
+            while (rs.next()) {//enquanto houver próximo;
+
+                iff.setNomeDoBanco(rs.getString("nomeDoBanco"));
+                iff.setNomeDoIndice(rs.getString("nomeDoIndice"));
+                iff.setFillFactor(rs.getInt("fill_Factor"));
+                iff.setNomeDaTabela(rs.getString("nomeDaTabela"));
+
+                System.out.println(iff.toString());
+                //adicionando o corpo da tabela no array de String
+                listaResultSetString.add(iff.toString());
+            }
+        } catch (SQLException ex) {
+            System.err.println("Erro :" + ex);
+        } finally {
+            ConnectionFactory.fecharStmtERs(stmt, rs);
+        }
+        System.out.println("*************************************************");
+        //adicionando o resultado do select ao listaComTodosSelects
+        getListaComTodosSelects().add(listaResultSetString);
+    }
+
+    public void selecionarIndicesNaoUtilizados() {
+        List<String> listaResultSetString = new ArrayList<>();
+        //pegando a conexao com o banco    
+        String selectidxNaoU = "USE " + getNomeBanco() + ";"
+                + "SELECT  OBJECT_NAME(i.[object_id]) AS nomeDaTabela ,\n"
+                + "                     i.name as nomeDoIndice\n"
+                + "                FROM    sys.indexes AS i\n"
+                + "                       INNER JOIN sys.objects AS o ON i.[object_id] = o.[object_id]\n"
+                + "                WHERE   i.index_id NOT IN ( SELECT  s.index_id\n"
+                + "                                            FROM    sys.dm_db_index_usage_stats AS s\n"
+                + "                                        WHERE   s.[object_id] = i.[object_id]\n"
+                + "                                                  AND i.index_id = s.index_id\n"
+                + "                                                 AND database_id = DB_ID() )\n"
+                + "                      AND o.[type] = 'U'\n"
+                + "                ORDER BY OBJECT_NAME(i.[object_id]) ASC";
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = conection.prepareStatement(selectidxNaoU);
+            rs = stmt.executeQuery();
+
+            IndicesNaoUtilizados idxNaoUtilizados = new IndicesNaoUtilizados();
+
+            listaResultSetString.add(idxNaoUtilizados.nomedoSelect());
+            //adicionando o cabeçaho da tabela no array de String posicao get(0)
+            listaResultSetString.add(idxNaoUtilizados.cabecalho());
+            System.out.println(idxNaoUtilizados.nomedoSelect());
+            System.out.println(idxNaoUtilizados.cabecalho());
+            while (rs.next()) {//enquanto houver próximo;
+                idxNaoUtilizados.setNomeDaTabela(rs.getString("nomeDaTabela"));
+                idxNaoUtilizados.setNomeDoIndice(rs.getString("nomeDoIndice"));
+                System.out.println(idxNaoUtilizados.toString());
+                //adicionando o corpo da tabela no array de String
+                listaResultSetString.add(idxNaoUtilizados.toString());
+            }
+        } catch (SQLException ex) {
+            System.err.println("Erro :" + ex);
+        } finally {
+            ConnectionFactory.fecharStmtERs(stmt, rs);
+        }
+        System.out.println("*************************************************");
+        //adicionando o resultado do select ao listaComTodosSelects
+        getListaComTodosSelects().add(listaResultSetString);
+    }
+
     public void selecionarTop10() {
+        //so essa função que passa nao pelo nome mais pelo id do banco
         List<String> listaResultSetString = new ArrayList<>();
         String selectTop10 = "select TOP (10) object_id as idDoObjeto,\n"
                 + "                index_type_desc as descricaoDoIndice,\n"
@@ -122,7 +321,9 @@ public class Tela_Script extends javax.swing.JFrame {
             MaioresIndices mi = new MaioresIndices();
             listaResultSetString.add(mi.nomedoSelect());
             //adicionando o cabeçaho da tabela no array de String posicao get(0)
+            System.out.println(mi.nomedoSelect());
             listaResultSetString.add(mi.cabecalho());
+            System.out.println(mi.cabecalho());
             while (rs.next()) {//enquanto houver próximo;
                 mi.setIdDoObjeto(rs.getLong("idDoObjeto"));
                 mi.setDescricaoDoIndice(rs.getString("descricaoDoIndice"));
@@ -137,6 +338,7 @@ public class Tela_Script extends javax.swing.JFrame {
         } finally {
             ConnectionFactory.fecharStmtERs(stmt, rs);
         }
+        System.out.println("*************************************************");
         getListaComTodosSelects().add(listaResultSetString);
 
     }
@@ -144,7 +346,9 @@ public class Tela_Script extends javax.swing.JFrame {
     public void selecionarIndicesNoPrimary() {
         List<String> listaResultSetString = new ArrayList<>();
         //pegando a conexao com o banco    
-        String selectNoPrimary = "Select distinct OBJECT_NAME(i.object_id) As Tabela,\n"
+        //PARA USAR O COMANDO USE BANCO EU DEVO COLOCAR ; PARA FUNCIONAR
+        String selectNoPrimary = "USE " + getNomeBanco() + ";"
+                + "Select distinct OBJECT_NAME(i.object_id) As Tabela,\n"
                 + "             i.name As Indice, \n"
                 + "             i.object_id IddoObjetoIndice,\n"
                 + "             fg.name as GrupoDeARQUIVO,\n"
@@ -168,6 +372,7 @@ public class Tela_Script extends javax.swing.JFrame {
             listaResultSetString.add(inp.nomedoSelect());
             //adicionando o cabeçaho da tabela no array de String posicao get(0)
             listaResultSetString.add(inp.cabecalho());
+            System.out.println(inp.nomedoSelect());
             System.out.println(inp.cabecalho());
             while (rs.next()) {//enquanto houver próximo;
                 inp.setNomeDaTabela(rs.getString("Tabela"));
@@ -186,55 +391,60 @@ public class Tela_Script extends javax.swing.JFrame {
         } finally {
             ConnectionFactory.fecharStmtERs(stmt, rs);
         }
+        System.out.println("*************************************************");
         //adicionando o resultado do select ao listaComTodosSelects
         getListaComTodosSelects().add(listaResultSetString);
     }
 
-    public void selecionarFillFactor() {
+    public void selecionarVariantes() {
         List<String> listaResultSetString = new ArrayList<>();
         //pegando a conexao com o banco    
-        int parametroFill = Integer.parseInt(jTextField3.getText());
-        String selectFill = "SELECT DB_NAME() AS nomeDoBanco, i.name AS nomeDoIndice, \n"
-                + "                 i.fill_factor AS fill_Factor, b.table_name as nomeDaTabela\n"
-                + "               FROM sys.indexes AS i\n"
-                + "                inner join sys.data_spaces AS ds ON i.data_space_id = ds.data_space_id\n"
-                + "                inner join sys.filegroups as fg on fg.data_space_id = ds.data_space_id\n"
-                + "                inner join sys.objects as o on o.object_id = i.object_id\n"
-                + "                inner join sys.master_files as smf on smf.data_space_id = ds.data_space_id\n"
-                + "                inner join sys.databases as db on db.database_id = smf.database_id\n"
-                + "                INNER JOIN information_schema.tables AS b\n"
-                + "                 ON (OBJECT_ID(b.table_name) = i.object_id) \n"
-                + "                 AND b.table_type = 'BASE TABLE'\n"
-                + "                WHERE i.fill_factor < " + parametroFill + "\n"
-                + "                ORDER BY i.fill_factor DESC";
+        String selectVariantes = "USE " + getNomeBanco() + ";"
+                + "SELECT distinct\n"
+                + "                clmns.column_id AS id,\n"
+                + "                clmns.name AS name,\n"
+                + "                ISNULL(baset.name, N'') AS systemType,\n"
+                + "                ik.type_desc as descricao\n"
+                + "                FROM information_schema.tables,\n"
+                + "                sys.tables AS tbl\n"
+                + "                INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
+                + "                LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1))\n"
+                + "                LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
+                + "                LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
+                + "	         WHERE table_type = 'base table' \n"
+                + "                and ik.type = 1\n"
+                + "                and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
+                + "                ORDER BY\n"
+                + "                id ASC;";
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            stmt = conection.prepareStatement(selectFill);
+            stmt = conection.prepareStatement(selectVariantes);
             rs = stmt.executeQuery();
 
-            IndicesFillFactor iff = new IndicesFillFactor();
-            listaResultSetString.add(iff.nomedoSelect());
+            IndicesClusterVariantes icv = new IndicesClusterVariantes();
+            listaResultSetString.add(icv.nomedoSelect());
             //adicionando o cabeçaho da tabela no array de String posicao get(0)
-            listaResultSetString.add(iff.cabecalho());
-            System.out.println(iff.cabecalho());
+            listaResultSetString.add(icv.cabecalho());
+            System.out.println(icv.nomedoSelect());
+            System.out.println(icv.cabecalho());
             while (rs.next()) {//enquanto houver próximo;
+                icv.setId(rs.getInt("id"));
+                icv.setName(rs.getString("name"));
+                icv.setSystemType(rs.getString("systemType"));
+                icv.setDescricao(rs.getString("descricao"));
 
-                iff.setNomeDoBanco(rs.getString("nomeDoBanco"));
-                iff.setNomeDoIndice(rs.getString("nomeDoIndice"));
-                iff.setFillFactor(rs.getInt("fill_Factor"));
-                iff.setNomeDaTabela(rs.getString("nomeDaTabela"));
-
-                System.out.println(iff.toString());
+                System.out.println(icv.toString());
                 //adicionando o corpo da tabela no array de String
-                listaResultSetString.add(iff.toString());
+                listaResultSetString.add(icv.toString());
             }
         } catch (SQLException ex) {
             System.err.println("Erro :" + ex);
         } finally {
             ConnectionFactory.fecharStmtERs(stmt, rs);
         }
+        System.out.println("*************************************************");
         //adicionando o resultado do select ao listaComTodosSelects
         getListaComTodosSelects().add(listaResultSetString);
     }
@@ -242,7 +452,8 @@ public class Tela_Script extends javax.swing.JFrame {
     public void selecionarTabelasHeap() {
         List<String> listaResultSetString = new ArrayList<>();
         //pegando a conexao com o banco    
-        String selectHeap = "SELECT DISTINCT i.name as  NomeIndice\n"
+        String selectHeap = "USE " + getNomeBanco() + ";"
+                + "SELECT DISTINCT i.name as  NomeIndice\n"
                 + "                     , i.type_desc as Descricao\n"
                 + "                     ,is_unique as chaveUnica\n"
                 + "                   ,is_primary_key as chavePrimaria\n"
@@ -267,6 +478,7 @@ public class Tela_Script extends javax.swing.JFrame {
             listaResultSetString.add(sHeap.nomedoSelect());
             //adicionando o cabeçaho da tabela no array de String posicao get(0)
             listaResultSetString.add(sHeap.cabecalho());
+            System.out.println(sHeap.nomedoSelect());
             System.out.println(sHeap.cabecalho());
             while (rs.next()) {//enquanto houver próximo;
                 sHeap.setNomeIndice(rs.getString("NomeIndice"));
@@ -283,101 +495,8 @@ public class Tela_Script extends javax.swing.JFrame {
         } finally {
             ConnectionFactory.fecharStmtERs(stmt, rs);
         }
+        System.out.println("*************************************************");
         //adicionando o resultado do select ao listaComTodosSelects
-        getListaComTodosSelects().add(listaResultSetString);
-    }
-
-    public void selecionarNaoVariantes() {
-        List<String> listaResultSetString = new ArrayList<>();
-        //pegando a conexao com o banco    
-        String selectNaoVariantes = "SELECT distinct\n"
-                + "                clmns.column_id AS id,\n"
-                + "                clmns.name AS name,\n"
-                + "                ISNULL(baset.name, N'') AS systemType,\n"
-                + "                ik.type_desc as descricao\n"
-                + "                FROM information_schema.tables,\n"
-                + "                sys.tables AS tbl\n"
-                + "                INNER JOIN sys.all_columns AS clmns ON clmns.object_id=tbl.object_id\n"
-                + "                LEFT OUTER JOIN sys.types AS baset ON (baset.user_type_id = clmns.system_type_id and baset.user_type_id = baset.system_type_id) or ((baset.system_type_id = clmns.system_type_id) and (baset.user_type_id = clmns.user_type_id) and (baset.is_user_defined = 0) and (baset.is_assembly_type = 1))\n"
-                + "                LEFT OUTER JOIN sys.indexes AS ik ON ik.object_id = clmns.object_id\n"
-                + "                LEFT OUTER JOIN sys.index_columns AS cik ON cik.index_id = ik.index_id and cik.column_id = clmns.column_id and cik.object_id = clmns.object_id and 0 = cik.is_included_column\n"
-                + "	         WHERE table_type = 'base table' \n"
-                + "                and ik.type = 1\n"
-                + "                and baset.name in ('nchar','ntext','nvarchar','sql_variant','text','varbinary','varchar')\n"
-                + "                ORDER BY\n"
-                + "                id ASC;";
-
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        try {
-            stmt = conection.prepareStatement(selectNaoVariantes);
-            rs = stmt.executeQuery();
-
-            IndicesClusterNaoVariantes icnv = new IndicesClusterNaoVariantes();
-            listaResultSetString.add(icnv.nomedoSelect());
-            //adicionando o cabeçaho da tabela no array de String posicao get(0)
-            listaResultSetString.add(icnv.cabecalho());
-            System.out.println(icnv.cabecalho());
-            while (rs.next()) {//enquanto houver próximo;
-                icnv.setId(rs.getInt("id"));
-                icnv.setName(rs.getString("name"));
-                icnv.setSystemType(rs.getString("systemType"));
-                icnv.setDescricao(rs.getString("descricao"));
-
-                System.out.println(icnv.toString());
-                //adicionando o corpo da tabela no array de String
-                listaResultSetString.add(icnv.toString());
-            }
-        } catch (SQLException ex) {
-            System.err.println("Erro :" + ex);
-        } finally {
-            ConnectionFactory.fecharStmtERs(stmt, rs);
-        }
-        //adicionando o resultado do select ao listaComTodosSelects
-        getListaComTodosSelects().add(listaResultSetString);
-    }
-
-    public void selecionarIndicesNaoUtilizados() {
-        List<String> listaResultSetString = new ArrayList<>();
-        //pegando a conexao com o banco    
-        String selectidxNaoU = "SELECT  OBJECT_NAME(i.[object_id]) AS nomeDaTabela ,\n"
-                + "                     i.name as nomeDoIndice\n"
-                + "                FROM    sys.indexes AS i\n"
-                + "                       INNER JOIN sys.objects AS o ON i.[object_id] = o.[object_id]\n"
-                + "                WHERE   i.index_id NOT IN ( SELECT  s.index_id\n"
-                + "                                            FROM    sys.dm_db_index_usage_stats AS s\n"
-                + "                                        WHERE   s.[object_id] = i.[object_id]\n"
-                + "                                                  AND i.index_id = s.index_id\n"
-                + "                                                 AND database_id = DB_ID() )\n"
-                + "                      AND o.[type] = 'U'\n"
-                + "                ORDER BY OBJECT_NAME(i.[object_id]) ASC";
-
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        try {
-            stmt = conection.prepareStatement(selectidxNaoU);
-            rs = stmt.executeQuery();
-
-            IndicesNaoUtilizados idxNaoUtilizados = new IndicesNaoUtilizados();
-
-            listaResultSetString.add(idxNaoUtilizados.nomedoSelect());
-            //adicionando o cabeçaho da tabela no array de String posicao get(0)
-            listaResultSetString.add(idxNaoUtilizados.cabecalho());
-            System.out.println(idxNaoUtilizados.cabecalho());
-            while (rs.next()) {//enquanto houver próximo;
-                idxNaoUtilizados.setNomeDaTabela(rs.getString("nomeDaTabela"));
-                idxNaoUtilizados.setNomeDoIndice(rs.getString("nomeDoIndice"));
-                System.out.println(idxNaoUtilizados.toString());
-                //adicionando o corpo da tabela no array de String
-                listaResultSetString.add(idxNaoUtilizados.toString());
-            }
-        } catch (SQLException ex) {
-            System.err.println("Erro :" + ex);
-        } finally {
-            ConnectionFactory.fecharStmtERs(stmt, rs);
-        }
-        //adicionando o resultado do select ao listaComTodosSelects
-
         getListaComTodosSelects().add(listaResultSetString);
     }
 
@@ -408,9 +527,9 @@ public class Tela_Script extends javax.swing.JFrame {
         jCheckBoxIndexClusterTipoVariavel = new javax.swing.JCheckBox();
         jSlider1 = new javax.swing.JSlider();
         jSlider2 = new javax.swing.JSlider();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
+        txtIndiceNonClustered = new javax.swing.JTextField();
+        txtIndiceClustered = new javax.swing.JTextField();
+        txtFillFactor = new javax.swing.JTextField();
         jPanelFuncao = new javax.swing.JPanel();
         jBtVoltar = new javax.swing.JButton();
         jBtAvançar = new javax.swing.JButton();
@@ -430,18 +549,33 @@ public class Tela_Script extends javax.swing.JFrame {
 
         jLabelOpcaoIndex.setText("Opções de Indexação");
 
-        jCheckBoxFragNaoCluster.setText("Indeces com fragmentação não clusterizado");
+        jCheckBoxFragNaoCluster.setText("Índices com fragmentação não clusterizado");
+        jCheckBoxFragNaoCluster.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxFragNaoClusterActionPerformed(evt);
+            }
+        });
 
-        jCheckBoxFragCluster.setText("Indeces com fragmentação clusterizado");
+        jCheckBoxFragCluster.setText("Índices com fragmentação clusterizado");
+        jCheckBoxFragCluster.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxFragClusterActionPerformed(evt);
+            }
+        });
 
         jScrollBar1.setOrientation(javax.swing.JScrollBar.HORIZONTAL);
         jScrollBar1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jCheckBoxFillFactor.setText("Índices com Fillfactor menor ");
+        jCheckBoxFillFactor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxFillFactorActionPerformed(evt);
+            }
+        });
 
         jCheckBoxIndiceNaoUtilizado.setText("Índices não utilizados");
 
-        jCheckBoxMaiorIndice.setText("Os top 10 - maiores indices");
+        jCheckBoxMaiorIndice.setText("Os top 10 - maiores Índices");
         jCheckBoxMaiorIndice.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jCheckBoxMaiorIndiceActionPerformed(evt);
@@ -453,7 +587,12 @@ public class Tela_Script extends javax.swing.JFrame {
         jSlider3.setPaintTicks(true);
         jSlider3.setValue(0);
 
-        jCheckBoxTableHeap.setText(" Tabelas heap");
+        jCheckBoxTableHeap.setText("Tabelas heap");
+        jCheckBoxTableHeap.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxTableHeapActionPerformed(evt);
+            }
+        });
 
         checkFileGroupPrimary.setText("Índices localizado no Filegroup PRIMARY");
         checkFileGroupPrimary.addActionListener(new java.awt.event.ActionListener() {
@@ -474,19 +613,19 @@ public class Tela_Script extends javax.swing.JFrame {
         jSlider2.setPaintTicks(true);
         jSlider2.setValue(0);
 
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jSlider1, org.jdesktop.beansbinding.ELProperty.create("${value}"), jTextField1, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jSlider1, org.jdesktop.beansbinding.ELProperty.create("${value}"), txtIndiceNonClustered, org.jdesktop.beansbinding.BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
 
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        txtIndiceNonClustered.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                txtIndiceNonClusteredActionPerformed(evt);
             }
         });
 
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jSlider2, org.jdesktop.beansbinding.ELProperty.create("${value}"), jTextField2, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jSlider2, org.jdesktop.beansbinding.ELProperty.create("${value}"), txtIndiceClustered, org.jdesktop.beansbinding.BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
 
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jSlider3, org.jdesktop.beansbinding.ELProperty.create("${value}"), jTextField3, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jSlider3, org.jdesktop.beansbinding.ELProperty.create("${value}"), txtFillFactor, org.jdesktop.beansbinding.BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -510,14 +649,14 @@ public class Tela_Script extends javax.swing.JFrame {
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(jSlider3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(txtFillFactor, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addGroup(jPanel1Layout.createSequentialGroup()
                                         .addComponent(jCheckBoxFragNaoCluster)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addGap(10, 10, 10)
-                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addContainerGap(173, Short.MAX_VALUE))
+                                .addComponent(txtIndiceNonClustered, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap(177, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jCheckBoxTableHeap)
@@ -530,7 +669,7 @@ public class Tela_Script extends javax.swing.JFrame {
                                 .addGap(6, 6, 6)
                                 .addComponent(jSlider2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(txtIndiceClustered, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(0, 0, Short.MAX_VALUE))))
         );
         jPanel1Layout.setVerticalGroup(
@@ -548,18 +687,18 @@ public class Tela_Script extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jCheckBoxFragNaoCluster)
                     .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtIndiceNonClustered, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(33, 33, 33)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jSlider2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(txtIndiceClustered, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jCheckBoxFragCluster, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(8, 8, 8)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jCheckBoxFillFactor)
                     .addComponent(jSlider3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtFillFactor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jCheckBoxIndiceNaoUtilizado)
                 .addGap(18, 18, 18)
@@ -635,44 +774,87 @@ public class Tela_Script extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jBtVoltarActionPerformed(java.awt.event.ActionEvent evt) {
+
         if (conection != null) {
             BasesDinamicas tdb = new BasesDinamicas(conection);
+            // Zerando o resumoOpcoes porque pode ser que mude o banco
+            BasesDinamicas.resumoOpcoes = new ArrayList<>();
             tdb.setVisible(true);
             this.dispose();
         }
     }
     private void jBtAvançarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtAvançarActionPerformed
+
+        //permissoes de escrita
+        if (jCheckBoxPermissaoSA.isSelected()) {
+            //adicione no resumoOpcoes
+            BasesDinamicas.resumoOpcoes.add(jCheckBoxPermissaoSA.getText());
+            //rode o metodo dele
+        }
+        if (jCheckBoxPermisssaoEscrita.isSelected()) {
+            //adicione no resumoOpcoes
+            BasesDinamicas.resumoOpcoes.add(jCheckBoxPermisssaoEscrita.getText());
+            //rode o metodo dele
+        }
+
+        //opções de script
+        if (jCheckBoxFragNaoCluster.isSelected()) {
+            BasesDinamicas.resumoOpcoes.add(jCheckBoxFragNaoCluster.getText() + " com fragmentação " + txtIndiceNonClustered.getText());
+            selecionarIndicesNonClustered();
+        }
+        if (jCheckBoxFragCluster.isSelected()) {
+            BasesDinamicas.resumoOpcoes.add(jCheckBoxFragCluster.getText() + " com fragmentação " + txtIndiceClustered.getText());
+            selecionarIndicesClustered();
+        }
+        if (jCheckBoxFillFactor.isSelected()) {
+            BasesDinamicas.resumoOpcoes.add(jCheckBoxFillFactor.getText() + " com fragmentação " + txtFillFactor.getText());
+            selecionarFillFactor();
+        }
+        if (jCheckBoxIndiceNaoUtilizado.isSelected()) {
+            BasesDinamicas.resumoOpcoes.add(jCheckBoxIndiceNaoUtilizado.getText());
+            selecionarIndicesNaoUtilizados();
+        }
         if (jCheckBoxMaiorIndice.isSelected()) {
+            BasesDinamicas.resumoOpcoes.add(jCheckBoxMaiorIndice.getText());
             selecionarTop10();
         }
         if (checkFileGroupPrimary.isSelected()) {
+            BasesDinamicas.resumoOpcoes.add(checkFileGroupPrimary.getText());
             selecionarIndicesNoPrimary();
         }
-        if (jCheckBoxFillFactor.isSelected()) {
-            selecionarFillFactor();
+        if (jCheckBoxIndexClusterTipoVariavel.isSelected()) {
+            BasesDinamicas.resumoOpcoes.add(jCheckBoxIndexClusterTipoVariavel.getText());
+            selecionarVariantes();
         }
         if (jCheckBoxTableHeap.isSelected()) {
+            BasesDinamicas.resumoOpcoes.add(jCheckBoxTableHeap.getText());
             selecionarTabelasHeap();
         }
-        if (jCheckBoxIndiceNaoUtilizado.isSelected()) {
-            selecionarIndicesNaoUtilizados();
-        }
-        if (jCheckBoxIndexClusterTipoVariavel.isSelected()) {
-            selecionarNaoVariantes();
-        }
 
-        if (getTelaResumo() == null) {//nao foi ainda para outra tela
+        List<String> temporaria = BasesDinamicas.resumoOpcoes;
+        for (String opcoes : temporaria) {
+            System.out.println(opcoes.toString());
+        }
+        
+        //ligações entre as telas
+        if (getTelaResumo() == null) {//nao foi ainda para tela resumo
+            //a tela script apontando para a tela resumo
             //cria nova instancia
             //passando esta tela como parametro
-
+            //A tela script conhece o caminho de ida para a tela resumo
             setTelaResumo(new Tela_Resumo(getListaComTodosSelects()));
-            //a tela script agora conhece esta tela caso ela precise voltar
-            //guardando o caminho de volta
+            //a tela resumo conhece o caminho de volta para a tela script
             getTelaResumo().setTelaScript(this);
+            //adicionar tudo ao painel de resumo
+            getTelaResumo().adicionarTudoNaTelaResumo();
+        } else {
+            //ja foi pra tela resumo e voltou pra essa
+            //passa denovo caso eu retire algo da lista ou coloque passando esta nova como parametro
+            getTelaResumo().setListacomlistaComTodosSelects(getListaComTodosSelects());
+            getTelaResumo().adicionarTudoNaTelaResumo(); 
         }
-        getTelaResumo().setListacomlistaComTodosSelects(getListaComTodosSelects());
-        //ja passou pela 3 tela e voltou pra essa
-        this.getTelaResumo().setVisible(true);
+        //chama a tela resumo
+        getTelaResumo().setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jBtAvançarActionPerformed
 
@@ -683,9 +865,9 @@ public class Tela_Script extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jBtCancelarActionPerformed
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void txtIndiceNonClusteredActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtIndiceNonClusteredActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    }//GEN-LAST:event_txtIndiceNonClusteredActionPerformed
 
     private void checkFileGroupPrimaryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkFileGroupPrimaryActionPerformed
 
@@ -694,6 +876,22 @@ public class Tela_Script extends javax.swing.JFrame {
     private void jCheckBoxMaiorIndiceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMaiorIndiceActionPerformed
 
     }//GEN-LAST:event_jCheckBoxMaiorIndiceActionPerformed
+
+    private void jCheckBoxFillFactorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxFillFactorActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCheckBoxFillFactorActionPerformed
+
+    private void jCheckBoxFragClusterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxFragClusterActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCheckBoxFragClusterActionPerformed
+
+    private void jCheckBoxFragNaoClusterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxFragNaoClusterActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCheckBoxFragNaoClusterActionPerformed
+
+    private void jCheckBoxTableHeapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxTableHeapActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCheckBoxTableHeapActionPerformed
 
     /**
      * @param args the command line arguments
@@ -754,9 +952,9 @@ public class Tela_Script extends javax.swing.JFrame {
     private javax.swing.JSlider jSlider1;
     private javax.swing.JSlider jSlider2;
     private javax.swing.JSlider jSlider3;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField txtFillFactor;
+    private javax.swing.JTextField txtIndiceClustered;
+    private javax.swing.JTextField txtIndiceNonClustered;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }
